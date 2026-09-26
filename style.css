@@ -1,0 +1,916 @@
+/* ==========================================================================
+   Pratik Khobragade — Systems Engineering Portfolio
+   Aesthetic: Dreamcore / Liminal Minimalist
+   Atmosphere: Ethereal midnight, soft ambient mist, poetic typography,
+   zero blocky AI dashboard cards, spacious breathing room.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
+
+/* --- Reset & Variables --- */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-deep: #06070a;
+  --bg-surface: rgba(14, 17, 24, 0.6);
+  --bg-hover: rgba(24, 29, 42, 0.5);
+  
+  --line-ghost: rgba(255, 255, 255, 0.07);
+  --line-subtle: rgba(255, 255, 255, 0.12);
+  --line-glow: rgba(129, 140, 248, 0.25);
+  
+  --text-pure: #f8fafc;
+  --text-ethereal: #cbd5e1;
+  --text-mist: #828a9b;
+  --text-ghost: #4b5263;
+  
+  --accent-lavender: #a5b4fc;
+  --accent-indigo: #818cf8;
+  --accent-cyan: #38bdf8;
+  --accent-rust: #fb923c;
+  
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  
+  --site-width: 1200px;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 15px;
+  background-color: var(--bg-deep);
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-deep);
+  color: var(--text-ethereal);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* --- Liminal Background Atmosphere --- */
+.liminal-backdrop {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(99, 102, 241, 0.07) 0%, transparent 45%),
+    radial-gradient(circle at 82% 48%, rgba(56, 189, 248, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 45% 90%, rgba(129, 140, 248, 0.06) 0%, transparent 55%);
+}
+
+.liminal-noise {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* --- Selection & Scrollbars --- */
+::selection {
+  background: rgba(129, 140, 248, 0.3);
+  color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-deep);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* --- Container --- */
+.liminal-wrapper {
+  max-width: var(--site-width);
+  margin: 0 auto;
+  padding: 0 48px;
+  position: relative;
+  z-index: 2;
+}
+
+/* --- Nav / Atmosphere Bar --- */
+.liminal-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(6, 7, 10, 0.75);
+  border-bottom: 1px solid var(--line-ghost);
+}
+
+.liminal-nav-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 58px;
+}
+
+
+
+.liminal-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  list-style: none;
+}
+
+.liminal-nav-links a,
+.liminal-nav-links button {
+  color: var(--text-mist);
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  transition: color 0.25s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.liminal-nav-links a:hover,
+.liminal-nav-links button:hover {
+  color: var(--text-pure);
+}
+
+.terminal-nav-link {
+  color: var(--accent-indigo) !important;
+}
+
+/* --- Hero (Liminal Identity) --- */
+.hero-liminal {
+  padding: 80px 0 64px;
+  border-bottom: 1px solid var(--line-ghost);
+}
+
+.hero-main-row {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+  margin-bottom: 40px;
+}
+
+.avatar-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.avatar-halo-wrapper {
+  position: relative;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.avatar-halo-wrapper::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.25), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: -1;
+}
+
+.avatar-halo-wrapper:hover::after {
+  opacity: 1;
+}
+
+/* Ambient subtle water ripple radiating every 6s to invite curiosity */
+.ambient-ripple-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  pointer-events: none;
+  animation: ambientWaterPulse 6s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+}
+
+@keyframes ambientWaterPulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.65;
+    border-color: rgba(56, 189, 248, 0.45);
+  }
+  70% {
+    transform: scale(1.25);
+    opacity: 0;
+    border-color: rgba(96, 165, 250, 0.1);
+  }
+  100% {
+    transform: scale(1.25);
+    opacity: 0;
+  }
+}
+
+.avatar-discovery-whisper {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  color: var(--accent-cyan);
+  text-align: center;
+  min-height: 16px;
+  opacity: 0;
+  transform: translateY(-2px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.avatar-discovery-whisper.active {
+  opacity: 0.9;
+  transform: translateY(0);
+}
+
+.avatar-dream {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  border: 1px solid var(--line-subtle);
+  filter: grayscale(25%) contrast(105%);
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.avatar-dream:hover {
+  filter: grayscale(0%);
+  border-color: var(--accent-lavender);
+  transform: scale(1.03);
+}
+
+.hero-content {
+  flex: 1;
+}
+
+.hero-name-ethereal {
+  font-family: var(--font-serif);
+  font-size: 3.8rem;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: var(--text-pure);
+  line-height: 1.05;
+  margin-bottom: 10px;
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.05);
+}
+
+.hero-tagline-liminal {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent-indigo);
+  margin-bottom: 24px;
+  font-weight: 400;
+}
+
+.hero-manifesto {
+  font-size: 1.08rem;
+  line-height: 1.8;
+  color: var(--text-ethereal);
+  max-width: 900px;
+  font-weight: 350;
+  letter-spacing: -0.005em;
+  margin-bottom: 32px;
+}
+
+/* Ethereal Spec Chain (No blocky boxes!) */
+.spec-chain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-mist);
+  padding: 16px 0;
+  border-top: 1px solid var(--line-ghost);
+  border-bottom: 1px solid var(--line-ghost);
+  margin-bottom: 32px;
+}
+
+.spec-node {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.spec-node .node-label {
+  color: var(--text-ghost);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.spec-node .node-val {
+  color: var(--text-pure);
+  font-weight: 400;
+}
+
+.spec-divider {
+  color: var(--line-subtle);
+  user-select: none;
+}
+
+/* Liminal Action Links */
+.liminal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+}
+
+.action-link {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--text-mist);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.25s ease;
+  letter-spacing: 0.04em;
+  position: relative;
+}
+
+.action-link::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0%;
+  height: 1px;
+  background: var(--accent-lavender);
+  transition: width 0.3s ease;
+}
+
+.action-link:hover {
+  color: var(--text-pure);
+}
+
+.action-link:hover::after {
+  width: 100%;
+}
+
+.terminal-trigger-link {
+  color: var(--accent-cyan);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* --- Section Formatting (Spacious & Minimal) --- */
+.liminal-section {
+  padding: 72px 0;
+  border-bottom: 1px solid var(--line-ghost);
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 36px;
+}
+
+.section-heading-serenity {
+  font-family: var(--font-serif);
+  font-size: 2.2rem;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  color: var(--text-pure);
+}
+
+.section-caption {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-ghost);
+}
+
+/* --- Works / Repositories Catalog (Zero Blocky Card Boxes!) --- */
+.works-catalog {
+  display: flex;
+  flex-direction: column;
+}
+
+.work-entry {
+  display: block;
+  text-decoration: none;
+  padding: 32px 20px;
+  margin: 0 -20px;
+  border-top: 1px solid var(--line-ghost);
+  transition: all 0.35s ease;
+  position: relative;
+  border-radius: 4px;
+}
+
+.work-entry:last-child {
+  border-bottom: 1px solid var(--line-ghost);
+}
+
+.work-entry:hover {
+  background: var(--bg-surface);
+  border-color: var(--line-subtle);
+  transform: translateX(6px);
+}
+
+.work-topline {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.work-title-group {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+}
+
+.work-index {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-style: italic;
+  color: var(--text-ghost);
+}
+
+.work-title {
+  font-family: var(--font-serif);
+  font-size: 1.85rem;
+  font-weight: 400;
+  color: var(--text-pure);
+  letter-spacing: -0.01em;
+  transition: color 0.25s ease;
+}
+
+.work-entry:hover .work-title {
+  color: #fff;
+  text-shadow: 0 0 20px rgba(165, 180, 252, 0.25);
+}
+
+.work-arrow {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  color: var(--text-ghost);
+  transition: all 0.3s ease;
+}
+
+.work-entry:hover .work-arrow {
+  color: var(--accent-lavender);
+  transform: translate(4px, -4px);
+}
+
+.work-concept {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent-indigo);
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+}
+
+.work-summary {
+  font-size: 0.96rem;
+  line-height: 1.7;
+  color: var(--text-ethereal);
+  max-width: 960px;
+  margin-bottom: 18px;
+  font-weight: 350;
+}
+
+.work-stack-chain {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.stack-tag {
+  color: var(--text-mist);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--line-ghost);
+  padding: 3px 9px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+}
+
+.work-entry:hover .stack-tag {
+  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--text-ethereal);
+}
+
+/* --- Systems & Explorations (Liminal Editorial Columns) --- */
+.systems-editorial-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 48px 64px;
+}
+
+.system-pillar {
+  position: relative;
+  padding-left: 28px;
+  border-left: 1px solid var(--line-subtle);
+  transition: border-color 0.3s ease;
+}
+
+.system-pillar:hover {
+  border-left-color: var(--accent-indigo);
+}
+
+.pillar-num {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  font-style: italic;
+  color: var(--accent-indigo);
+  margin-bottom: 6px;
+}
+
+.pillar-title {
+  font-family: var(--font-serif);
+  font-size: 1.45rem;
+  font-weight: 400;
+  color: var(--text-pure);
+  margin-bottom: 10px;
+  letter-spacing: -0.01em;
+}
+
+.pillar-desc {
+  font-size: 0.94rem;
+  line-height: 1.75;
+  color: var(--text-mist);
+  font-weight: 350;
+}
+
+/* --- Toolkit / Stack Matrix (Clean & Atmospheric) --- */
+/* --- Languages (Minimal Ethereal Row) --- */
+.languages-chain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 24px;
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  color: var(--text-pure);
+  padding: 10px 0;
+}
+
+.language-node {
+  color: var(--text-pure);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.language-node:hover {
+  color: #fff;
+  text-shadow: 0 0 14px rgba(165, 180, 252, 0.45);
+}
+
+.language-sep {
+  color: var(--line-subtle);
+  user-select: none;
+}
+
+/* --- Liminal Footer --- */
+.liminal-footer {
+  padding: 64px 0 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  border-top: 1px solid var(--line-ghost);
+  margin-top: 40px;
+}
+
+.footer-quiet-signature {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--text-mist);
+}
+
+.footer-social-links {
+  display: flex;
+  gap: 24px;
+  list-style: none;
+}
+
+.footer-social-links a {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-ghost);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  transition: color 0.25s ease;
+}
+
+.footer-social-links a:hover {
+  color: var(--text-pure);
+}
+
+/* ==========================================================================
+   FURINA FONTAINE / DREAMCORE OCEANIC THEME
+   (Theatrical Submersion Easter Egg)
+   ========================================================================== */
+body.furina-mode {
+  --bg-deep: #030611;
+  --bg-surface: rgba(10, 24, 46, 0.45);
+  --bg-hover: rgba(18, 38, 70, 0.5);
+  
+  --line-ghost: rgba(56, 189, 248, 0.1);
+  --line-subtle: rgba(56, 189, 248, 0.2);
+  --line-glow: rgba(56, 189, 248, 0.4);
+  
+  --text-pure: #f0f9ff;
+  --text-ethereal: #bae6fd;
+  --text-mist: #7dd3fc;
+  --text-ghost: #38bdf8;
+  
+  --accent-lavender: #38bdf8;
+  --accent-indigo: #60a5fa;
+  --accent-cyan: #38bdf8;
+  
+  transition: background-color 0.8s cubic-bezier(0.16, 1, 0.3, 1), color 0.8s ease;
+}
+
+body.furina-mode .liminal-backdrop {
+  background:
+    radial-gradient(circle at 50% 5%, rgba(56, 189, 248, 0.12) 0%, transparent 60%),
+    radial-gradient(circle at 85% 60%, rgba(37, 99, 235, 0.1) 0%, transparent 55%),
+    radial-gradient(circle at 15% 85%, rgba(14, 165, 233, 0.08) 0%, transparent 60%);
+}
+
+body.furina-mode .hero-name-ethereal {
+  text-shadow: 0 0 40px rgba(56, 189, 248, 0.25);
+}
+
+body.furina-mode .hero-tagline-liminal {
+  color: #7dd3fc;
+  text-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+}
+
+body.furina-mode .avatar-dream {
+  border-color: #38bdf8;
+  box-shadow: 0 0 30px rgba(56, 189, 248, 0.4);
+  filter: none;
+}
+
+
+
+/* ==========================================================================
+   Interactive Terminal CLI Modal (Dreamcore Glass Style)
+   ========================================================================== */
+.terminal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(3, 4, 7, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.terminal-overlay.open {
+  display: flex;
+  animation: etherealFadeIn 0.25s ease-out;
+}
+
+@keyframes etherealFadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.terminal-window {
+  width: 100%;
+  max-width: 720px;
+  height: 480px;
+  background-color: rgba(8, 10, 16, 0.95);
+  border: 1px solid var(--line-subtle);
+  border-radius: 6px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: var(--font-mono);
+}
+
+.terminal-topbar {
+  background-color: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--line-ghost);
+  padding: 10px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.74rem;
+  color: var(--text-mist);
+}
+
+.terminal-close-btn {
+  background: none;
+  border: none;
+  color: var(--text-ghost);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  transition: color 0.2s;
+}
+
+.terminal-close-btn:hover {
+  color: var(--text-pure);
+}
+
+.terminal-body {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--text-ethereal);
+  display: flex;
+  flex-direction: column;
+}
+
+.terminal-output {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.terminal-line.cmd-echo { color: var(--accent-cyan); }
+.terminal-line.cmd-highlight { color: var(--accent-lavender); }
+.terminal-line.cmd-error { color: #f87171; }
+.terminal-line.cmd-success { color: #38bdf8; }
+.terminal-line.cmd-dim { color: var(--text-mist); font-size: 0.78rem; font-style: italic; }
+.terminal-line.cmd-ethereal { color: #7dd3fc; line-height: 1.7; }
+
+.terminal-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line-ghost);
+}
+
+.terminal-prompt-sym {
+  color: var(--accent-indigo);
+}
+
+.terminal-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  color: #fff;
+  caret-color: var(--accent-cyan);
+}
+
+/* ==========================================================================
+   Minimalist System Toast & Particles
+   ========================================================================== */
+.system-toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  background-color: rgba(10, 12, 18, 0.95);
+  border: 1px solid var(--line-subtle);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.8);
+  padding: 12px 20px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-pure);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 1001;
+  transform: translateY(120%);
+  opacity: 0;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.system-toast.show {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.toast-prefix {
+  color: var(--accent-cyan);
+  font-weight: 500;
+}
+
+/* Water Particle */
+.water-particle {
+  position: fixed;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.75) 0%, rgba(56, 189, 248, 0) 70%);
+  z-index: 999;
+  animation: liminalDrop 0.8s ease-out forwards;
+}
+
+@keyframes liminalDrop {
+  0% { transform: scale(0.2); opacity: 0.9; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+
+/* CRT Scanline Overlay */
+.scanline-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  background-size: 100% 3px, 6px 100%;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.scanline-overlay.active {
+  opacity: 1;
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 900px) {
+  .liminal-wrapper {
+    padding: 0 28px;
+  }
+  .hero-main-row {
+    flex-direction: column;
+    gap: 24px;
+  }
+  .hero-name-ethereal {
+    font-size: 2.8rem;
+  }
+  .systems-editorial-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  .stack-liminal-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 600px) {
+  .liminal-wrapper {
+    padding: 0 20px;
+  }
+  .hero-name-ethereal {
+    font-size: 2.3rem;
+  }
+  .liminal-nav-links {
+    gap: 16px;
+  }
+  .spec-chain {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .spec-divider {
+    display: none;
+  }
+  .work-topline {
+    flex-direction: column;
+    gap: 6px;
+  }
+}

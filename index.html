@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pratik Khobragade — Systems & Architecture</title>
+  <meta name="description"
+    content="Pratik Khobragade — Computer Engineering. Systems architecture, AI coding agents in Rust, from-scratch LLM internals, and GPU-accelerated tooling.">
+  <meta property="og:title" content="Pratik Khobragade — Systems & Architecture">
+  <meta property="og:description"
+    content="Computer Engineering. Building low-level tools, AI coding agents, and custom ML pipelines in Python & Rust.">
+  <meta property="og:type" content="website">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- Ambient Liminal Layers -->
+  <div class="liminal-backdrop"></div>
+  <div class="liminal-noise"></div>
+
+  <!-- Header & Atmosphere Navigation -->
+  <header class="liminal-header">
+    <div class="liminal-wrapper liminal-nav-inner">
+      <div></div>
+
+      <nav>
+        <ul class="liminal-nav-links">
+          <li><a href="#works">works</a></li>
+          <li><a href="#systems">systems</a></li>
+          <li><a href="#languages">languages</a></li>
+          <li>
+            <button class="terminal-nav-link" id="openTerminalBtn" title="Press ` to toggle terminal">
+              ` cli
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="liminal-wrapper">
+
+    <!-- Hero Section -->
+    <section class="hero-liminal">
+      <div class="hero-main-row">
+        <!-- Interactive Avatar with ambient ripple clue & progressive discovery -->
+        <div class="avatar-column">
+          <div class="avatar-halo-wrapper" id="avatarTrigger" role="button" tabindex="0" title="A quiet ripple in the reflection...">
+            <img src="assets/avatar.jpg" alt="Pratik Khobragade" class="avatar-dream" id="heroAvatar">
+            <div class="ambient-ripple-ring" id="avatarRippleRing"></div>
+          </div>
+          <div class="avatar-discovery-whisper" id="avatarWhisper"></div>
+        </div>
+
+        <div class="hero-content">
+          <h1 class="hero-name-ethereal" id="heroName">Pratik Khobragade</h1>
+          <div class="hero-tagline-liminal" id="heroTagline">Computer Engineering</div>
+
+          <p class="hero-manifesto" id="heroManifesto">
+            I build tools that sit between research ideas and working systems — AI coding agents,
+            custom LLM training pipelines, GPU-accelerated media tooling, and whatever else seems
+            worth figuring out from scratch. Most of my work is in Python and Rust. I like understanding
+            things at a low level before reaching for abstractions.
+          </p>
+
+          <!-- Ethereal Spec Chain (Zero blocky boxes!) -->
+          <div class="spec-chain">
+            <span class="spec-node">
+              <span class="node-label">Field</span>
+              <span class="node-val" id="specField">Computer Engineering</span>
+            </span>
+            <span class="spec-divider">/</span>
+            <span class="spec-node">
+              <span class="node-label">Age</span>
+              <span class="node-val" id="ageVal">20</span>
+            </span>
+            <span class="spec-divider">/</span>
+            <span class="spec-node">
+              <span class="node-label">Origin</span>
+              <span class="node-val">India</span>
+            </span>
+            <span class="spec-divider">/</span>
+            <span class="spec-node">
+              <span class="node-label">Stack</span>
+              <span class="node-val">Rust · Python · PyTorch · CUDA</span>
+            </span>
+          </div>
+
+          <!-- Direct Links -->
+          <div class="liminal-actions">
+            <a href="https://github.com/Pratik-3706" target="_blank" rel="noopener" class="action-link">
+              github ↗
+            </a>
+            <a href="https://huggingface.co/Pratik-3706" target="_blank" rel="noopener" class="action-link">
+              hugging face ↗
+            </a>
+            <a href="https://in.linkedin.com/in/pratik-khobragade-278560408" target="_blank" rel="noopener"
+              class="action-link">
+              linkedin ↗
+            </a>
+            <button class="action-link terminal-trigger-link" id="heroCliBtn">
+              interactive shell &gt;_
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Works & Systems (Non-blocky, spacious catalog) -->
+    <section class="liminal-section" id="works">
+      <div class="section-head">
+        <h2 class="section-heading-serenity">Works & Systems</h2>
+        <span class="section-caption">Selected Repositories</span>
+      </div>
+
+      <div class="works-catalog">
+
+        <!-- Norvexum -->
+        <a href="https://github.com/Pratik-3706/Norvexum" target="_blank" rel="noopener" class="work-entry">
+          <div class="work-topline">
+            <div class="work-title-group">
+              <span class="work-index">01</span>
+              <span class="work-title">Norvexum</span>
+            </div>
+            <span class="work-arrow">↗</span>
+          </div>
+          <div class="work-concept">Sandboxed AI Coding Agent & TUI in Rust</div>
+          <p class="work-summary">
+            Agentic coding runtime implemented from first principles in Rust. Features parallel tool execution,
+            isolated process sandboxing, multi-provider LLM orchestration, and a responsive keyboard-driven terminal UI
+            built with Ratatui.
+          </p>
+          <div class="work-stack-chain">
+            <span class="stack-tag">rust</span>
+            <span class="stack-tag">ratatui</span>
+            <span class="stack-tag">ai-agent</span>
+            <span class="stack-tag">sandboxing</span>
+            <span class="stack-tag">cli</span>
+          </div>
+        </a>
+
+        <!-- JustAnEpoch -->
+        <a href="https://github.com/Pratik-3706/JustAnEpoch" target="_blank" rel="noopener" class="work-entry">
+          <div class="work-topline">
+            <div class="work-title-group">
+              <span class="work-index">02</span>
+              <span class="work-title">JustAnEpoch</span>
+            </div>
+            <span class="work-arrow">↗</span>
+          </div>
+          <div class="work-concept">From-Scratch Autoregressive GPT & Custom BPE</div>
+          <p class="work-summary">
+            Autoregressive GPT transformer built purely from first principles without Hugging Face abstractions.
+            Includes custom Byte Pair Encoding (BPE) tokenizer, causal multi-head self-attention, and learned positional
+            embeddings in raw PyTorch.
+          </p>
+          <div class="work-stack-chain">
+            <span class="stack-tag">pytorch</span>
+            <span class="stack-tag">transformers</span>
+            <span class="stack-tag">bpe-tokenizer</span>
+            <span class="stack-tag">deep-learning</span>
+          </div>
+        </a>
+
+        <!-- Obsidian Codec -->
+        <a href="https://github.com/Pratik-3706/Obsidian_Codec" target="_blank" rel="noopener" class="work-entry">
+          <div class="work-topline">
+            <div class="work-title-group">
+              <span class="work-index">03</span>
+              <span class="work-title">Obsidian Codec</span>
+            </div>
+            <span class="work-arrow">↗</span>
+          </div>
+          <div class="work-concept">GPU-Accelerated Transcoding & Pipeline Orchestration</div>
+          <p class="work-summary">
+            High-throughput media transcode pipeline wrapping FFmpeg with dynamic NVENC/CUDA hardware acceleration
+            detection,
+            concurrent filesystem event watching, automated batching, and a rich CLI telemetry interface.
+          </p>
+          <div class="work-stack-chain">
+            <span class="stack-tag">ffmpeg</span>
+            <span class="stack-tag">gpu-acceleration</span>
+            <span class="stack-tag">cuda</span>
+            <span class="stack-tag">python</span>
+          </div>
+        </a>
+
+        <!-- BadApple_nn -->
+        <a href="https://github.com/Pratik-3706/BadApple_nn" target="_blank" rel="noopener" class="work-entry">
+          <div class="work-topline">
+            <div class="work-title-group">
+              <span class="work-index">04</span>
+              <span class="work-title">BadApple_nn</span>
+            </div>
+            <span class="work-arrow">↗</span>
+          </div>
+          <div class="work-concept">Neural Video Memorization & Pixel Reconstruction</div>
+          <p class="work-summary">
+            Exploring the capacity limits of compact neural networks to memorize high-frequency temporal data.
+            Trained a tiny model to reconstruct the Bad Apple video frame-by-frame by mapping frame indices directly to
+            compressed pixel matrices.
+          </p>
+          <div class="work-stack-chain">
+            <span class="stack-tag">neural-memorization</span>
+            <span class="stack-tag">pytorch</span>
+            <span class="stack-tag">experiment</span>
+          </div>
+        </a>
+
+        <!-- Metroika -->
+        <a href="https://github.com/Pratik-3706/Metroika" target="_blank" rel="noopener" class="work-entry">
+          <div class="work-topline">
+            <div class="work-title-group">
+              <span class="work-index">05</span>
+              <span class="work-title">Metroika</span>
+            </div>
+            <span class="work-arrow">↗</span>
+          </div>
+          <div class="work-concept">Modular Systems & Architecture Patterns</div>
+          <p class="work-summary">
+            Architecture laboratory investigating decoupled service patterns, composable pipeline boundaries,
+            and low-overhead interfaces for extensible systems development.
+          </p>
+          <div class="work-stack-chain">
+            <span class="stack-tag">architecture</span>
+            <span class="stack-tag">design-patterns</span>
+            <span class="stack-tag">systems</span>
+          </div>
+        </a>
+
+        <!-- ignite_bot -->
+        <a href="https://github.com/Pratik-3706/ignite_bot" target="_blank" rel="noopener" class="work-entry">
+          <div class="work-topline">
+            <div class="work-title-group">
+              <span class="work-index">06</span>
+              <span class="work-title">ignite_bot</span>
+            </div>
+            <span class="work-arrow">↗</span>
+          </div>
+          <div class="work-concept">Automated Interaction & Task Dispatcher</div>
+          <p class="work-summary">
+            Lightweight asynchronous event-driven task bot for rapid scripting and automated interaction pipelines.
+          </p>
+          <div class="work-stack-chain">
+            <span class="stack-tag">automation</span>
+            <span class="stack-tag">asyncio</span>
+            <span class="stack-tag">python</span>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- Core Disciplines (Atmospheric Pillars) -->
+    <section class="liminal-section" id="systems">
+      <div class="section-head">
+        <h2 class="section-heading-serenity">Core Disciplines</h2>
+        <span class="section-caption">Systems & Engineering Focus</span>
+      </div>
+
+      <div class="systems-editorial-grid">
+        <div class="system-pillar">
+          <div class="pillar-num">I.</div>
+          <h3 class="pillar-title">System Design & Architecture</h3>
+          <p class="pillar-desc">
+            Designing clean abstractions and scalable data flow. Analyzing concurrency boundaries, low-overhead
+            inter-process communication,
+            and decoupled API contracts that remain maintainable under load.
+          </p>
+        </div>
+
+        <div class="system-pillar">
+          <div class="pillar-num">II.</div>
+          <h3 class="pillar-title">First-Principles R&D</h3>
+          <p class="pillar-desc">
+            Implementing mechanisms directly from research literature without relying on third-party black boxes.
+            Understanding model mechanics, custom attention kernels, and low-level tokenizers by writing them from
+            scratch.
+          </p>
+        </div>
+
+        <div class="system-pillar">
+          <div class="pillar-num">III.</div>
+          <h3 class="pillar-title">ML Infrastructure & Tooling</h3>
+          <p class="pillar-desc">
+            The infrastructure engineering that enables models to run efficiently: GPU resource management,
+            CUDA/NVENC video acceleration pipelines, model serving runtimes, and local tool execution harnesses.
+          </p>
+        </div>
+
+        <div class="system-pillar">
+          <div class="pillar-num">IV.</div>
+          <h3 class="pillar-title">Low-Level Systems</h3>
+          <p class="pillar-desc">
+            Systems programming in Rust and Python. Understanding memory allocation, cache efficiency, process
+            sandboxing,
+            and POSIX interfaces to eliminate runtime overhead.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Languages -->
+    <section class="liminal-section" id="languages">
+      <div class="section-head">
+        <h2 class="section-heading-serenity">Languages</h2>
+      </div>
+
+      <div class="languages-chain">
+        <span class="language-node">Python</span>
+        <span class="language-sep">/</span>
+        <span class="language-node">Rust</span>
+        <span class="language-sep">/</span>
+        <span class="language-node">C / C++</span>
+        <span class="language-sep">/</span>
+        <span class="language-node">SQL</span>
+        <span class="language-sep">/</span>
+        <span class="language-node">Bash</span>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="liminal-footer">
+
+      <ul class="footer-social-links">
+        <li><a href="https://github.com/Pratik-3706" target="_blank" rel="noopener">GitHub</a></li>
+        <li><a href="https://huggingface.co/Pratik-3706" target="_blank" rel="noopener">Hugging Face</a></li>
+        <li><a href="https://in.linkedin.com/in/pratik-khobragade-278560408" target="_blank" rel="noopener">LinkedIn</a>
+        </li>
+      </ul>
+    </footer>
+
+  </main>
+
+  <!-- Interactive Terminal CLI Modal -->
+  <div class="terminal-overlay" id="terminalOverlay">
+    <div class="terminal-window">
+      <div class="terminal-topbar">
+        <span>pratik@machine: ~</span>
+        <button class="terminal-close-btn" id="terminalCloseBtn" title="Close [ESC]">[ESC] ×</button>
+      </div>
+      <div class="terminal-body" id="terminalBody">
+        <div class="terminal-output" id="terminalOutput">
+          <div class="terminal-line" style="color:var(--text-dim);">pratik-shell // session active</div>
+          <div class="terminal-line" style="color:var(--text-mist);">Type <span style="color:var(--accent-cyan);">'help'</span> for available commands.</div>
+        </div>
+        <div class="terminal-input-row">
+          <span class="terminal-prompt-sym">~ $</span>
+          <input type="text" class="terminal-input" id="terminalInput" autocomplete="off" spellcheck="false" autofocus>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Minimalist System Toast -->
+  <div class="system-toast" id="systemToast">
+    <span class="toast-prefix">[EVENT]</span>
+    <span id="toastMsg">State updated</span>
+  </div>
+
+  <!-- CRT Scanline Glitch Container -->
+  <div class="scanline-overlay" id="scanlineOverlay"></div>
+
+  <script src="main.js"></script>
+</body>
+
+</html>
