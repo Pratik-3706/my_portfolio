@@ -1,493 +1,364 @@
-/* ==========================================================================
-   Pratik Khobragade — Systems Engineering Portfolio Engine
-   Aesthetic: Dreamcore / Liminal Minimalist
-   Features:
-   - Dynamic Age & Year Calculation
-   - Ethereal Fontaine / Furina Submersion Easter Egg (Avatar & Atmosphere)
-   - Interactive Liminal CLI Shell
-   - Scanline CRT Glitch & Water Particle Physics
-   - Zero AI Slop / Zero Gimmick Currency Counters
-   ========================================================================== */
-
 (function () {
   'use strict';
 
-  // ── Chronology & Age Calculation ─────────────────────────
-  var BIRTHDAY = new Date(2006, 6, 3); // July 3, 2006
+  var $ = function (id) { return document.getElementById(id); };
 
-  function calculateAge() {
+  var LOADED = Date.now();
+  var BORN = new Date(2006, 6, 3);
+
+  function age() {
     var now = new Date();
-    var age = now.getFullYear() - BIRTHDAY.getFullYear();
-    var m = now.getMonth() - BIRTHDAY.getMonth();
-    if (m < 0 || (m === 0 && now.getDate() < BIRTHDAY.getDate())) {
-      age--;
-    }
-    return age;
+    var y = now.getFullYear() - BORN.getFullYear();
+    var m = now.getMonth() - BORN.getMonth();
+    if (m < 0 || (m === 0 && now.getDate() < BORN.getDate())) y--;
+    return y;
   }
 
-  var ageEl = document.getElementById('ageVal');
+  function days() {
+    return Math.floor((Date.now() - BORN.getTime()) / 86400000);
+  }
+
+  var ageEl = $('age');
+  if (ageEl) ageEl.textContent = age();
+
+  var statusTimer;
+  function status(msg, ms) {
+    var el = $('status');
+    if (!el) return;
+    el.textContent = msg;
+    el.setAttribute('data-on', '');
+    clearTimeout(statusTimer);
+    statusTimer = setTimeout(function () { el.removeAttribute('data-on'); }, ms || 3500);
+  }
+
+  function store(key, val) {
+    try {
+      if (val === null) localStorage.removeItem(key);
+      else localStorage.setItem(key, val);
+    } catch (e) { /* private mode */ }
+  }
+
+  function read(key) {
+    try { return localStorage.getItem(key); } catch (e) { return null; }
+  }
+
+  // base is dark/light, palette is an optional override on top of it
+  var PALETTES = ['fontaine', 'phosphor'];
+  var palette = '';
+  var base = null;
+
+  function setBase(mode) {
+    base = mode || null;
+    if (base) document.documentElement.setAttribute('data-theme', base);
+    else document.documentElement.removeAttribute('data-theme');
+    store('theme', base);
+  }
+
+  function systemPrefersLight() {
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+  }
+
+  function setPalette(name, announce) {
+    palette = PALETTES.indexOf(name) > -1 ? name : '';
+    PALETTES.forEach(function (p) { document.body.classList.toggle(p, p === palette); });
+    store('palette', palette || null);
+
+    var fontaine = palette === 'fontaine';
+    var portrait = $('portrait');
+    var role = $('role');
+    var field = $('field');
+    if (portrait) portrait.src = fontaine ? 'assets/furina_av.png' : 'assets/avatar.jpg';
+    if (role) role.textContent = fontaine ? 'regina of all waters · fontaine' : 'computer engineering · india';
+    if (field) field.textContent = fontaine ? 'hydro archon' : 'computer engineering';
+
+    if (announce) {
+      if (fontaine) status('all the world\'s a stage.');
+      else if (palette === 'phosphor') status('phosphor burn-in engaged.');
+      else status('back to normal.');
+    }
+  }
+
+  var storedBase = read('theme');
+  if (storedBase === 'dark' || storedBase === 'light') setBase(storedBase);
+  setPalette(read('palette') || '', false);
+
+  var themeBtn = $('themeBtn');
+  if (themeBtn) {
+    themeBtn.addEventListener('click', function () {
+      if (palette) { setPalette('', false); return; }
+      var light = base ? base === 'light' : systemPrefersLight();
+      setBase(light ? 'dark' : 'light');
+    });
+  }
+
+  var portrait = $('portrait');
+  if (portrait) {
+    portrait.addEventListener('click', function () {
+      setPalette(palette === 'fontaine' ? '' : 'fontaine', true);
+    });
+  }
+
   if (ageEl) {
-    ageEl.textContent = calculateAge();
-  }
-
-
-  // ── Minimalist Toast Notification ────────────────────────
-  var toastTimer = null;
-  function showToast(prefix, msg, duration) {
-    duration = duration || 4500;
-    var toast = document.getElementById('systemToast');
-    var toastMsg = document.getElementById('toastMsg');
-    if (!toast || !toastMsg) return;
-
-    var prefixEl = toast.querySelector('.toast-prefix');
-    if (prefixEl) prefixEl.textContent = '[' + prefix + ']';
-    toastMsg.textContent = msg;
-
-    toast.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () {
-      toast.classList.remove('show');
-    }, duration);
-  }
-
-  // ── Water Particle Ripples ───────────────────────────────
-  function spawnWaterParticles(x, y, count) {
-    for (var i = 0; i < count; i++) {
-      (function (idx) {
-        setTimeout(function () {
-          var particle = document.createElement('div');
-          particle.className = 'water-particle';
-          var size = 16 + Math.random() * 28;
-          particle.style.width = size + 'px';
-          particle.style.height = size + 'px';
-          particle.style.left = (x - size / 2 + (Math.random() - 0.5) * 50) + 'px';
-          particle.style.top = (y - size / 2 + (Math.random() - 0.5) * 50) + 'px';
-          document.body.appendChild(particle);
-          setTimeout(function () {
-            if (particle.parentNode) particle.parentNode.removeChild(particle);
-          }, 800);
-        }, idx * 35);
-      })(i);
-    }
-  }
-
-  // ── CRT Scanline Glitch ───────────────────────────────────
-  function toggleScanlines(ms) {
-    var overlay = document.getElementById('scanlineOverlay');
-    if (!overlay) return;
-    overlay.classList.add('active');
-    setTimeout(function () {
-      overlay.classList.remove('active');
-    }, ms || 3500);
-  }
-
-  // ══════════════════════════════════════════════════════════
-  // CLEVER EASTER EGG: Ethereal Fontaine / Furina Submersion
-  // ══════════════════════════════════════════════════════════
-  var isFurinaMode = false;
-  var avatarImg = document.getElementById('heroAvatar');
-  var heroTagline = document.getElementById('heroTagline');
-  var specField = document.getElementById('specField');
-  var avatarTrigger = document.getElementById('avatarTrigger');
-
-  var ORIGINAL_AVATAR = 'assets/avatar.jpg';
-  var FURINA_AVATAR = 'assets/furina_av.png';
-  var ORIGINAL_TAGLINE = 'Computer Engineering';
-  var FURINA_TAGLINE = 'Regina of All Waters, Kindreds, Peoples and Laws · Fontaine';
-  var ORIGINAL_FIELD = 'Computer Engineering';
-  var FURINA_FIELD = 'Hydro Archon';
-
-  function setSubmersionMode(enable, notify) {
-    isFurinaMode = enable;
-    if (enable) {
-      document.body.classList.add('furina-mode');
-      if (avatarImg) avatarImg.src = FURINA_AVATAR;
-      if (heroTagline) heroTagline.textContent = FURINA_TAGLINE;
-      if (specField) specField.textContent = FURINA_FIELD;
-
-      try {
-        localStorage.setItem('pk_furina_mode', 'true');
-      } catch (err) {}
-
-      if (notify) {
-        showToast(
-          'OPÉRA ÉPICLESSE',
-          '"All the world\'s a stage, and the trial has just begun."'
-        );
-      }
-    } else {
-      document.body.classList.remove('furina-mode');
-      if (avatarImg) avatarImg.src = ORIGINAL_AVATAR;
-      if (heroTagline) heroTagline.textContent = ORIGINAL_TAGLINE;
-      if (specField) specField.textContent = ORIGINAL_FIELD;
-
-      try {
-        localStorage.removeItem('pk_furina_mode');
-      } catch (err) {}
-
-      if (notify) {
-        showToast('SYSTEM', 'Default configuration restored.');
-      }
-    }
-  }
-
-  // Restore state if previously active
-  try {
-    if (localStorage.getItem('pk_furina_mode') === 'true') {
-      setSubmersionMode(true, false);
-    }
-  } catch (e) {}
-
-  // ── Avatar Multi-Stage Progressive Discovery ─────────────
-  var avatarClicks = 0;
-  var avatarClickTimer = null;
-  var whisperTimer = null;
-  var avatarWhisper = document.getElementById('avatarWhisper');
-
-  function setAvatarWhisper(text, duration) {
-    if (!avatarWhisper) return;
-    avatarWhisper.textContent = text;
-    avatarWhisper.classList.add('active');
-    clearTimeout(whisperTimer);
-    if (duration !== 0) {
-      whisperTimer = setTimeout(function () {
-        avatarWhisper.classList.remove('active');
-      }, duration || 2400);
-    }
-  }
-
-  if (avatarTrigger) {
-    avatarTrigger.addEventListener('click', function (e) {
-      if (isFurinaMode) {
-        spawnWaterParticles(e.clientX, e.clientY, 8);
-        setSubmersionMode(false, true);
-        setAvatarWhisper('~ returned to surface', 2000);
-        return;
-      }
-
-      avatarClicks++;
-      clearTimeout(avatarClickTimer);
-
-      if (avatarClicks === 1) {
-        spawnWaterParticles(e.clientX, e.clientY, 5);
-        setAvatarWhisper('💧 a ripple stirs in the reflection...', 2200);
-        avatarClickTimer = setTimeout(function () {
-          avatarClicks = 0;
-        }, 1800);
-      } else if (avatarClicks === 2) {
-        spawnWaterParticles(e.clientX, e.clientY, 10);
-        setAvatarWhisper('🌊 the tides rise deeper... [1 more]', 2200);
-        avatarClickTimer = setTimeout(function () {
-          avatarClicks = 0;
-        }, 1800);
-      } else if (avatarClicks >= 3) {
-        avatarClicks = 0;
-        spawnWaterParticles(e.clientX, e.clientY, 18);
-        setAvatarWhisper('✦ submerged [click to resurface]', 3200);
-        setSubmersionMode(true, true);
-      }
-    });
-
-    avatarTrigger.addEventListener('mouseenter', function () {
-      if (isFurinaMode) {
-        setAvatarWhisper('~ click to resurface', 1600);
-      }
+    ageEl.addEventListener('click', function () {
+      ageEl.textContent = days().toLocaleString() + ' days';
+      setTimeout(function () { ageEl.textContent = age(); }, 2600);
     });
   }
 
-  // Hidden Trigger 2: Secret keyword sniffer ('furina' or 'focalors')
-  var keyBuffer = '';
-  document.addEventListener('keydown', function (e) {
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-
-    if (e.key.length === 1) {
-      keyBuffer += e.key.toLowerCase();
-      if (keyBuffer.length > 25) keyBuffer = keyBuffer.slice(-25);
-
-      if (keyBuffer.includes('furina') || keyBuffer.includes('focalors')) {
-        keyBuffer = '';
-        var rect = avatarImg ? avatarImg.getBoundingClientRect() : { left: window.innerWidth / 2, top: 150 };
-        spawnWaterParticles(rect.left + 48, rect.top + 48, 14);
-        setSubmersionMode(!isFurinaMode, true);
-      } else if (keyBuffer.includes('matrix')) {
-        keyBuffer = '';
-        toggleScanlines(5000);
-        showToast('SCANLINES', 'Cathode ray display filter active.');
-      }
-    }
-  });
-
-  // ── Secret: Konami Code (↑ ↑ ↓ ↓ ← → ← → B A) ────────────
-  var konamiSeq = [
-    'ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown',
-    'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight',
-    'b', 'a'
-  ];
-  var konamiIdx = 0;
+  // typed words and the konami code, ignored while the shell has focus
+  var buffer = '';
+  var konami = 'ArrowUp ArrowUp ArrowDown ArrowDown ArrowLeft ArrowRight ArrowLeft ArrowRight b a'.split(' ');
+  var konamiAt = 0;
 
   document.addEventListener('keydown', function (e) {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
-    if (e.key === konamiSeq[konamiIdx] || e.key.toLowerCase() === konamiSeq[konamiIdx]) {
-      konamiIdx++;
-      if (konamiIdx === konamiSeq.length) {
-        konamiIdx = 0;
-        toggleScanlines(4500);
-        showToast(
-          'ANALOG_OVERRIDE',
-          '"The prophecy has been fulfilled. The sin is washed away."'
-        );
+    if (e.key === konami[konamiAt] || e.key.toLowerCase() === konami[konamiAt]) {
+      if (++konamiAt === konami.length) {
+        konamiAt = 0;
+        setPalette(palette === 'phosphor' ? '' : 'phosphor', true);
       }
     } else {
-      konamiIdx = 0;
+      konamiAt = 0;
+    }
+
+    if (e.key === '`') {
+      e.preventDefault();
+      toggleShell();
+      return;
+    }
+
+    if (e.key.length !== 1) return;
+    buffer = (buffer + e.key.toLowerCase()).slice(-12);
+
+    if (/furina|focalors/.test(buffer)) {
+      buffer = '';
+      setPalette(palette === 'fontaine' ? '' : 'fontaine', true);
     }
   });
 
-  // ── Console Handshake & Discovery Cue ────────────────────
-  console.log(
-    '%c' +
-    '  ✦ PRATIK KHOBRAGADE // SYSTEMS & ARCHITECTURE\n' +
-    '  "I build tools that sit between research ideas and working systems."\n\n' +
-    '  [DISCOVERY]: A disturbance stirs in the avatar reflection,\n' +
-    '               or inspect archives with `ls` in the terminal shell.\n',
-    'color: #a5b4fc; font-family: monospace; font-size: 13px; font-weight: bold;'
-  );
+  // shell
 
-  window.pratik = {
-    bio: function () {
-      return 'I build tools that sit between research ideas and working systems in Python and Rust.';
-    },
-    languages: ['Python', 'Rust', 'C / C++', 'SQL', 'Bash']
+  var bg = $('shellBg');
+  var input = $('shellInput');
+  var out = $('shellOut');
+  var scroll = $('shellScroll');
+
+  function print(text, cls) {
+    var line = document.createElement('div');
+    if (cls) line.className = cls;
+    line.textContent = text;
+    out.appendChild(line);
+    scroll.scrollTop = scroll.scrollHeight;
+  }
+
+  function openShell() {
+    bg.setAttribute('open', '');
+    input.focus();
+    if (!out.childElementCount) {
+      print('sh 0.1 — type help, or ls if you like poking around.', 'dim');
+    }
+  }
+
+  function closeShell() {
+    bg.removeAttribute('open');
+    input.blur();
+  }
+
+  function toggleShell() {
+    if (bg.hasAttribute('open')) closeShell();
+    else openShell();
+  }
+
+  [$('shellBtn'), $('shellBtn2')].forEach(function (btn) {
+    if (btn) btn.addEventListener('click', openShell);
+  });
+  $('shellClose').addEventListener('click', closeShell);
+  bg.addEventListener('click', function (e) { if (e.target === bg) closeShell(); });
+
+  var REPOS = {
+    norvexum: 'https://github.com/Pratik-3706/Norvexum',
+    justanepoch: 'https://github.com/Pratik-3706/JustAnEpoch',
+    obsidian: 'https://github.com/Pratik-3706/Obsidian_Codec',
+    badapple: 'https://github.com/Pratik-3706/BadApple_nn',
+    metroika: 'https://github.com/Pratik-3706/Metroika',
+    ignite: 'https://github.com/Pratik-3706/ignite_bot'
   };
 
-  // ══════════════════════════════════════════════════════════
-  // Interactive Terminal CLI Modal
-  // ══════════════════════════════════════════════════════════
-  var terminalOverlay = document.getElementById('terminalOverlay');
-  var terminalInput = document.getElementById('terminalInput');
-  var terminalOutput = document.getElementById('terminalOutput');
-  var terminalCloseBtn = document.getElementById('terminalCloseBtn');
-  var openTerminalBtn = document.getElementById('openTerminalBtn');
-  var heroCliBtn = document.getElementById('heroCliBtn');
+  var FILES = {
+    'about.txt': [
+      'Low-level tools and ML plumbing, mostly Rust and Python.',
+      'I\'d rather read the paper and write the thing than pull in',
+      'a dependency I can\'t explain.'
+    ],
+    'work.txt': [
+      'six things worth showing. run: work',
+      'repos open with: open <name>'
+    ],
+    'langs.txt': ['python, rust, c/c++, sql, bash'],
+    '.fontaine': [
+      'Water remembers the shape of the glass.',
+      'Try typing her name on the page, or run: theme fontaine'
+    ]
+  };
 
-  function openTerminal() {
-    if (!terminalOverlay) return;
-    terminalOverlay.classList.add('open');
-    if (terminalInput) {
-      terminalInput.focus();
-      terminalInput.value = '';
-    }
-  }
+  var COMMANDS = [
+    'help', 'ls', 'cat', 'whoami', 'work', 'open', 'focus', 'langs',
+    'now', 'age', 'theme', 'echo', 'sudo', 'vim', 'clear', 'exit'
+  ];
 
-  function closeTerminal() {
-    if (!terminalOverlay) return;
-    terminalOverlay.classList.remove('open');
-  }
+  var history = [];
+  var at = 0;
 
-  if (openTerminalBtn) openTerminalBtn.addEventListener('click', openTerminal);
-  if (heroCliBtn) heroCliBtn.addEventListener('click', openTerminal);
-  if (terminalCloseBtn) terminalCloseBtn.addEventListener('click', closeTerminal);
-
-  if (terminalOverlay) {
-    terminalOverlay.addEventListener('click', function (e) {
-      if (e.target === terminalOverlay) closeTerminal();
-    });
-  }
-
-  document.addEventListener('keydown', function (e) {
-    if (e.key === '`' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      var raw = input.value.trim();
+      input.value = '';
+      if (!raw) return;
+      history.push(raw);
+      at = history.length;
+      print('$ ' + raw, 'echo');
+      run(raw);
+    } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      if (terminalOverlay && terminalOverlay.classList.contains('open')) {
-        closeTerminal();
-      } else {
-        openTerminal();
-      }
+      if (at > 0) input.value = history[--at] || '';
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (at < history.length - 1) input.value = history[++at] || '';
+      else { at = history.length; input.value = ''; }
+    } else if (e.key === 'Tab') {
+      e.preventDefault();
+      var word = input.value.trim();
+      if (!word || /\s/.test(word)) return;
+      var hits = COMMANDS.filter(function (c) { return c.indexOf(word) === 0; });
+      if (hits.length === 1) input.value = hits[0] + ' ';
+      else if (hits.length > 1) print(hits.join('  '), 'dim');
     } else if (e.key === 'Escape') {
-      closeTerminal();
+      closeShell();
     }
   });
 
-  function appendTerminalLine(text, className) {
-    var line = document.createElement('div');
-    line.className = 'terminal-line' + (className ? ' ' + className : '');
-    line.textContent = text;
-    terminalOutput.appendChild(line);
-    var body = document.getElementById('terminalBody');
-    if (body) body.scrollTop = body.scrollHeight;
-  }
-
-  var commandHistory = [];
-  var historyIdx = -1;
-
-  if (terminalInput) {
-    terminalInput.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') {
-        var raw = terminalInput.value.trim();
-        terminalInput.value = '';
-        if (!raw) return;
-
-        commandHistory.push(raw);
-        historyIdx = commandHistory.length;
-
-        appendTerminalLine('~ $ ' + raw, 'cmd-echo');
-        executeCommand(raw);
-      } else if (e.key === 'ArrowUp') {
-        if (historyIdx > 0) {
-          historyIdx--;
-          terminalInput.value = commandHistory[historyIdx] || '';
-        }
-      } else if (e.key === 'ArrowDown') {
-        if (historyIdx < commandHistory.length - 1) {
-          historyIdx++;
-          terminalInput.value = commandHistory[historyIdx] || '';
-        } else {
-          historyIdx = commandHistory.length;
-          terminalInput.value = '';
-        }
-      }
-    });
-  }
-
-  function executeCommand(cmdStr) {
-    var trimmed = cmdStr.trim();
-    var parts = trimmed.split(/\s+/);
+  function run(line) {
+    var parts = line.split(/\s+/);
     var cmd = parts[0].toLowerCase();
-    var arg = parts.slice(1).join(' ').toLowerCase();
+    var arg = parts.slice(1).join(' ');
+    var key = arg.toLowerCase().replace(/[^a-z]/g, '');
 
     switch (cmd) {
       case 'help':
-        appendTerminalLine('COMMANDS:', 'cmd-highlight');
-        appendTerminalLine('  ls              — List environment archives');
-        appendTerminalLine('  cat <archive>   — Read archive contents');
-        appendTerminalLine('  whoami          — View current session');
-        appendTerminalLine('  bio             — Read technical background');
-        appendTerminalLine('  works           — List primary repositories & systems');
-        appendTerminalLine('  systems         — View core architectural disciplines');
-        appendTerminalLine('  languages       — Display programming languages');
-        appendTerminalLine('  stats           — View telemetry & chronology');
-        appendTerminalLine('  clear           — Clear screen');
-        appendTerminalLine('  exit            — Close shell');
+        print('ls            what\'s lying around');
+        print('cat <file>    read one of them');
+        print('work          the projects');
+        print('open <name>   open a repo in a new tab');
+        print('focus         what I spend time on');
+        print('langs         languages');
+        print('whoami        you, roughly');
+        print('now           date, and how long you\'ve been here');
+        print('age           mine, in days');
+        print('theme <name>  dark, light, fontaine, phosphor, reset');
+        print('clear, exit');
         break;
 
       case 'ls':
-      case 'dir':
-        appendTerminalLine('total 5', 'cmd-dim');
-        appendTerminalLine('-rw-r--r--  1 pratik  staff   1.4K  manifesto.txt');
-        appendTerminalLine('-rw-r--r--  1 pratik  staff   2.1K  works.log');
-        appendTerminalLine('-rw-r--r--  1 pratik  staff    420  disciplines.txt');
-        appendTerminalLine('-rw-r--r--  1 pratik  staff    180  languages.env');
-        appendTerminalLine('-r--------  1 furina  archon   500  .prophecy_of_waters', 'cmd-highlight');
-        appendTerminalLine('hint: run "cat <archive>" to inspect contents.', 'cmd-dim');
+        print('about.txt  work.txt  langs.txt');
+        print('.fontaine', 'hl');
         break;
 
       case 'cat':
-        if (!arg) {
-          appendTerminalLine('usage: cat <filename> (e.g. "cat .prophecy_of_waters" or "cat works.log")', 'cmd-dim');
-          break;
-        }
-        if (arg.includes('prophecy') || arg.includes('water') || arg.includes('.prophecy')) {
-          appendTerminalLine('✦ ARCHON DECREE // OPÉRA ÉPICLESSE ✦', 'cmd-highlight');
-          appendTerminalLine(
-            '"All the world\'s a stage, and the waters of judgment shall rise."\n' +
-            'Execute: \'furina\' (or click the avatar reflection 3 times) to plunge into the trial.',
-            'cmd-ethereal'
-          );
-        } else if (arg.includes('manifesto') || arg.includes('bio')) {
-          executeCommand('bio');
-        } else if (arg.includes('works') || arg.includes('log')) {
-          executeCommand('works');
-        } else if (arg.includes('discipline') || arg.includes('systems')) {
-          executeCommand('systems');
-        } else if (arg.includes('language') || arg.includes('env')) {
-          executeCommand('languages');
-        } else {
-          appendTerminalLine('cat: ' + arg + ': No such file or directory. Try "ls".', 'cmd-error');
-        }
+        if (!arg) { print('cat: needs a filename', 'err'); break; }
+        var name = Object.keys(FILES).filter(function (f) {
+          return f.replace(/[^a-z]/g, '').indexOf(key) > -1 && key;
+        })[0];
+        if (!name) { print('cat: ' + arg + ': no such file', 'err'); break; }
+        FILES[name].forEach(function (l) {
+          print(l, name === '.fontaine' ? 'hl' : null);
+        });
+        break;
+
+      case 'work':
+        print('norvexum      rust      terminal coding agent, sandboxed tools');
+        print('justanepoch   python    gpt + bpe tokenizer from scratch');
+        print('obsidian      python    gpu transcoder around ffmpeg');
+        print('badapple      python    tiny net memorizes a video');
+        print('metroika      python    service boundaries, pipelines');
+        print('ignite        python    async task dispatcher');
+        print('open <name> to go there', 'dim');
+        break;
+
+      case 'open':
+        var match = Object.keys(REPOS).filter(function (r) { return key && r.indexOf(key) === 0; })[0];
+        if (!match) { print('open: unknown project. try work', 'err'); break; }
+        window.open(REPOS[match], '_blank', 'noopener');
+        print('opening ' + match);
+        break;
+
+      case 'focus':
+        print('systems design     concurrency, cheap ipc, interfaces that hold up');
+        print('reading papers     writing the mechanism out by hand');
+        print('ml infrastructure  gpu scheduling, cuda/nvenc, serving');
+        print('low level          memory layout, cache, sandboxing, posix');
+        break;
+
+      case 'langs':
+        print('python, rust, c/c++, sql, bash');
         break;
 
       case 'whoami':
-        appendTerminalLine('guest@pratik-machine (guest session)');
-        appendTerminalLine('An archon decree lies sealed in \'.prophecy_of_waters\' (run "ls" to inspect).', 'cmd-dim');
+        print('guest');
+        print('one of these files is not like the others.', 'dim');
         break;
 
-      case 'bio':
-        appendTerminalLine(
-          'I build tools that sit between research ideas and working systems — AI coding agents,\n' +
-          'custom LLM training pipelines, GPU-accelerated media tooling, and whatever else seems\n' +
-          'worth figuring out from scratch. Most of my work is in Python and Rust. I like understanding\n' +
-          'things at a low level before reaching for abstractions.'
-        );
+      case 'now':
+        print(new Date().toString());
+        print('on this page: ' + Math.round((Date.now() - LOADED) / 1000) + 's');
         break;
 
-      case 'works':
-      case 'projects':
-        appendTerminalLine('SELECTED WORKS:', 'cmd-highlight');
-        appendTerminalLine('1. Norvexum        [Rust]     — Sandboxed AI coding agent & TUI (Ratatui)');
-        appendTerminalLine('2. JustAnEpoch     [Python]   — From-scratch GPT transformer & custom BPE');
-        appendTerminalLine('3. Obsidian Codec  [Python]   — GPU-accelerated transcoding engine (CUDA/FFmpeg)');
-        appendTerminalLine('4. BadApple_nn     [Python]   — Neural video memorization experiment');
-        appendTerminalLine('5. Metroika        [Python]   — Modular systems & extensible design patterns');
-        appendTerminalLine('6. ignite_bot      [Python]   — Automated task & event dispatcher');
+      case 'age':
+        print(age() + ' years — ' + days().toLocaleString() + ' days');
         break;
 
-      case 'systems':
-        appendTerminalLine('CORE DISCIPLINES:', 'cmd-highlight');
-        appendTerminalLine('I.   System Design & Scalability  : Concurrency boundaries, low-overhead IPC, scale');
-        appendTerminalLine('II.  First-Principles Research    : From-paper implementations, custom kernels');
-        appendTerminalLine('III. ML Infrastructure            : GPU acceleration, CUDA/NVENC, model runtimes');
-        appendTerminalLine('IV.  Low-Level Systems            : Rust, memory layout, process sandboxing, POSIX');
+      case 'theme':
+        if (key === 'reset' || !key) { setBase(null); setPalette('', true); print('following your system'); }
+        else if (key === 'dark' || key === 'light') { setPalette('', false); setBase(key); print(key); }
+        else if (PALETTES.indexOf(key) > -1) { setPalette(key, true); print(key); }
+        else print('theme: dark, light, fontaine, phosphor, reset', 'err');
         break;
 
-      case 'languages':
-        appendTerminalLine('LANGUAGES:', 'cmd-highlight');
-        appendTerminalLine('Python, Rust, C / C++, SQL, Bash');
+      case 'echo':
+        print(arg);
         break;
 
-      case 'stats':
-        appendTerminalLine('SYSTEM TELEMETRY:', 'cmd-highlight');
-        appendTerminalLine('Name     : Pratik Khobragade');
-        appendTerminalLine('Field    : ' + (isFurinaMode ? FURINA_TAGLINE : ORIGINAL_TAGLINE));
-        appendTerminalLine('Age      : ' + calculateAge());
-        appendTerminalLine('Origin   : India');
-        appendTerminalLine('Stack    : Rust · Python · PyTorch · CUDA');
-        if (isFurinaMode) {
-          appendTerminalLine('Realm    : Fontaine (Hydro Archon Active)');
-        }
+      case 'sudo':
+        print('guest is not in the sudoers file. this incident has been reported.', 'err');
         break;
 
-      case 'furina':
-      case 'focalors':
-      case 'submerge':
-      case './.prophecy_of_waters':
-      case '.prophecy_of_waters':
-      case 'prophecy':
-        setSubmersionMode(!isFurinaMode, true);
-        appendTerminalLine(
-          isFurinaMode
-            ? '✦ "All the world\'s a stage, and the trial has just begun."'
-            : '✦ Default environment restored.',
-          'cmd-highlight'
-        );
+      case 'vim':
+      case 'vi':
+        print('you are in a browser. esc works here, which is more than vim ever gave you.');
         break;
 
-      case 'matrix':
-        toggleScanlines(5000);
-        appendTerminalLine('Analog scanline filter active [5s].', 'cmd-success');
+      case 'rm':
+        print(/-rf?\s*\/?\s*$|-rf\s/.test(arg) ? 'nice try.' : 'rm: this is a website.');
         break;
 
       case 'clear':
-        terminalOutput.innerHTML = '';
+        out.textContent = '';
         break;
 
       case 'exit':
-      case 'quit':
-        closeTerminal();
+      case 'q':
+      case ':q':
+        closeShell();
         break;
 
       default:
-        appendTerminalLine('Command not found: ' + cmd + '. Type "help" for commands.', 'cmd-error');
-        break;
+        print(cmd + ': command not found', 'err');
     }
   }
 
+  console.log(
+    '%cthere is a shell behind the backtick key.\n%crun ls once you are in.',
+    'font-family:monospace;font-size:12px;color:#8ab4f8',
+    'font-family:monospace;font-size:12px;color:#9b9ca3'
+  );
 })();
