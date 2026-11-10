@@ -938,7 +938,7 @@
     bg.setAttribute('open', '');
     input.focus();
     if (!out.childElementCount) {
-      print('sh 0.3. type help, or ls if you like poking around.');
+      print('sh 0.3. type help. there are secrets in here: try ls -a');
     }
   }
 
@@ -989,9 +989,11 @@
       '(this has never once worked.)'
     ],
     '.words': [
-      'the page listens while you type. it knows a few names:',
-      'an archon, a songstress and her cube, a video,',
-      'a boy who keeps dying, a robot cat, and an orb.'
+      'the page listens while you type.',
+      'press esc to close this, then type one of these',
+      'anywhere on the page (no text box needed):',
+      ' ',
+      '  furina   vivy   badapple   subaru   doraemon   fushi'
     ],
     '.stage': [
       'show takes more names than it admits to.',
@@ -1092,14 +1094,19 @@
         print('age             mine, in days', 'plain');
         print('theme <name>    dark, light, reset', 'plain');
         print('history, clear, exit', 'plain');
-        print('a few others aren\'t listed.');
+        print('there are secrets too. start with: ls -a');
         break;
 
       case 'ls':
       case 'dir': {
         const names = Object.keys(FILES);
         print(names.filter(f => f[0] !== '.').join('  '), 'plain');
-        if (/-\w*a/.test(arg)) print(names.filter(f => f[0] === '.').join('  '), 'hl');
+        if (/-\w*a/.test(arg)) {
+          print(names.filter(f => f[0] === '.').join('  '), 'hl');
+          print('read one with cat. the good one is: cat .words');
+        } else {
+          print('ls -a shows the hidden ones');
+        }
         break;
       }
 
@@ -1138,7 +1145,7 @@
 
       case 'whoami':
         print('guest', 'plain');
-        print('some of the files here start with a dot.');
+        print('there are hidden files in here. try: ls -a');
         break;
 
       case 'now':
