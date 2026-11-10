@@ -28,8 +28,6 @@
 
   <!-- there's a shell behind the backtick key. `help` works, `ls -a` is more interesting. -->
 
-  <canvas id="grid" aria-hidden="true"></canvas>
-
   <div class="wrap">
 
     <header class="bar">
@@ -41,33 +39,42 @@
       </nav>
     </header>
 
+    <div class="layout">
+
+    <aside class="stage" id="stage" aria-hidden="true">
+      <div class="viewport">
+        <canvas id="scene"></canvas>
+        <span class="count" id="capCount"></span>
+        <p class="caption"><b id="capName"></b><span id="capNote"></span></p>
+      </div>
+    </aside>
+
+    <div class="page">
+
     <main>
 
       <section class="hero">
         <h1><span>Pratik</span> <span>Khobragade</span></h1>
 
-        <div class="cols">
-          <ul class="facts">
-            <li id="role">computer engineering student</li>
-            <li id="place">india</li>
-            <li><span class="age" id="age">20</span> years old</li>
-            <li>rust, python, c++</li>
-          </ul>
+        <ul class="facts">
+          <li id="role">computer engineering student</li>
+          <li id="place">india</li>
+          <li><span class="age" id="age">20</span> years old</li>
+        </ul>
 
-          <div class="prose">
-            <p class="lede">
-              I build things mostly to find out how they work. Lately that's
-              <a href="https://github.com/Pratik-3706/Norvexum" target="_blank" rel="noopener">a coding agent</a>
-              that lives in the terminal,
-              <a href="https://github.com/Pratik-3706/Vivy" target="_blank" rel="noopener">an app</a>
-              that lets a model use my phone, and
-              <a href="https://github.com/Pratik-3706/swarm_mcp" target="_blank" rel="noopener">a way</a>
-              to get several coding agents working on one project without tripping over each other.
-            </p>
-            <p>
-              I'd rather read the paper and write the thing than pull in a dependency I can't explain.
-            </p>
-          </div>
+        <div class="prose">
+          <p class="lede">
+            I build things mostly to find out how they work. Lately that's
+            <a href="https://github.com/Pratik-3706/Norvexum" target="_blank" rel="noopener">a coding agent</a>
+            that lives in the terminal,
+            <a href="https://github.com/Pratik-3706/Vivy" target="_blank" rel="noopener">an app</a>
+            that lets a model use my phone, and
+            <a href="https://github.com/Pratik-3706/swarm_mcp" target="_blank" rel="noopener">a way</a>
+            to get several coding agents working on one project without tripping over each other.
+          </p>
+          <p>
+            I'd rather read the paper and write the thing than pull in a dependency I can't explain.
+          </p>
         </div>
       </section>
 
@@ -77,7 +84,7 @@
         <ol class="projects">
 
           <li>
-            <a href="https://github.com/Pratik-3706/Norvexum" target="_blank" rel="noopener">
+            <a href="https://github.com/Pratik-3706/Norvexum" target="_blank" rel="noopener" data-scene="norvexum">
               <h3><span>Norvexum</span></h3>
               <div class="body">
                 <p>
@@ -92,7 +99,7 @@
           </li>
 
           <li>
-            <a href="https://github.com/Pratik-3706/swarm_mcp" target="_blank" rel="noopener">
+            <a href="https://github.com/Pratik-3706/swarm_mcp" target="_blank" rel="noopener" data-scene="swarm">
               <h3><span>swarm-mcp</span></h3>
               <div class="body">
                 <p>
@@ -107,7 +114,7 @@
           </li>
 
           <li>
-            <a href="https://github.com/Pratik-3706/Vivy" target="_blank" rel="noopener">
+            <a href="https://github.com/Pratik-3706/Vivy" target="_blank" rel="noopener" data-scene="vivy">
               <h3><span>Vivy</span></h3>
               <div class="body">
                 <p>
@@ -122,7 +129,7 @@
           </li>
 
           <li>
-            <a href="https://github.com/Pratik-3706/Metroika" target="_blank" rel="noopener">
+            <a href="https://github.com/Pratik-3706/Metroika" target="_blank" rel="noopener" data-scene="metroika">
               <h3><span>Metroika</span></h3>
               <div class="body">
                 <p>
@@ -137,7 +144,7 @@
           </li>
 
           <li>
-            <a href="https://github.com/Pratik-3706/ignite_bot" target="_blank" rel="noopener">
+            <a href="https://github.com/Pratik-3706/ignite_bot" target="_blank" rel="noopener" data-scene="ignite">
               <h3><span>ignite_bot</span></h3>
               <div class="body">
                 <p>
@@ -152,7 +159,7 @@
           </li>
 
           <li>
-            <a href="https://github.com/Pratik-3706/BadApple_nn" target="_blank" rel="noopener">
+            <a href="https://github.com/Pratik-3706/BadApple_nn" target="_blank" rel="noopener" data-scene="badapple">
               <h3><span>BadApple_nn</span></h3>
               <div class="body">
                 <p>
@@ -167,7 +174,7 @@
           </li>
 
           <li>
-            <a href="https://github.com/Pratik-3706/JustAnEpoch" target="_blank" rel="noopener">
+            <a href="https://github.com/Pratik-3706/JustAnEpoch" target="_blank" rel="noopener" data-scene="justanepoch">
               <h3><span>JustAnEpoch</span></h3>
               <div class="body">
                 <p>
@@ -182,7 +189,7 @@
           </li>
 
           <li>
-            <a href="https://github.com/Pratik-3706/Obsidian_Codec" target="_blank" rel="noopener">
+            <a href="https://github.com/Pratik-3706/Obsidian_Codec" target="_blank" rel="noopener" data-scene="obsidian">
               <h3><span>Obsidian Codec</span></h3>
               <div class="body">
                 <p>
@@ -198,7 +205,7 @@
         </ol>
       </section>
 
-      <section class="cols">
+      <section>
         <h2>otherwise</h2>
 
         <div class="prose">
@@ -227,6 +234,10 @@
         <button id="colophon">no framework, no build step</button>
       </div>
     </footer>
+
+    </div>
+
+    </div>
 
   </div>
 
