@@ -5,190 +5,227 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pratik Khobragade</title>
-  <meta name="description" content="Pratik Khobragade — computer engineering. Low-level tools and ML plumbing in Rust and Python.">
+  <meta name="description" content="Pratik Khobragade, computer engineering student in India. Coding agents, small models written from scratch and the tools around them, mostly in Rust and Python.">
   <meta property="og:title" content="Pratik Khobragade">
-  <meta property="og:description" content="Low-level tools and ML plumbing in Rust and Python.">
+  <meta property="og:description" content="Coding agents, small models written from scratch and the tools around them.">
   <meta property="og:type" content="website">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%230b0c0e'/><text x='32' y='44' font-size='34' font-family='monospace' fill='%238ab4f8' text-anchor='middle'>p</text></svg>">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%23ffe14d'/><text x='32' y='46' font-size='40' font-weight='700' font-family='Arial,sans-serif' fill='%230c0c0b' text-anchor='middle'>p</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
   <link rel="stylesheet" href="style.css">
+  <script>
+    try {
+      var t = localStorage.getItem('theme'), p = localStorage.getItem('palette');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+      if (p) document.documentElement.setAttribute('data-palette', p);
+    } catch (e) {}
+  </script>
 </head>
 
 <body>
 
-  <!-- there's a shell behind the backtick key. `help` works, `ls` is more interesting. -->
+  <!-- there's a shell behind the backtick key. `help` works, `ls -a` is more interesting. -->
+
+  <canvas id="grid" aria-hidden="true"></canvas>
 
   <div class="wrap">
 
-    <header class="top">
-      <a href="#" class="mark">pratik khobragade</a>
+    <header class="bar">
+      <img src="assets/avatar.jpg" alt="Pratik Khobragade" class="portrait" id="portrait" width="32" height="32">
+      <span class="clock" id="clock"></span>
       <nav>
-        <a href="#work">work</a>
-        <a href="#focus">focus</a>
-        <button id="themeBtn" title="Switch theme">theme</button>
-        <button id="shellBtn"><span class="key">`</span>shell</button>
+        <button id="themeBtn">theme</button>
+        <button id="shellBtn"><kbd>`</kbd>shell</button>
       </nav>
     </header>
 
     <main>
 
-      <section class="intro">
-        <div class="intro-head">
-          <img src="assets/avatar.jpg" alt="Pratik Khobragade" class="portrait" id="portrait" title="click me">
-          <div>
-            <h1>Pratik Khobragade</h1>
-            <div class="role" id="role">computer engineering · india</div>
-          </div>
-        </div>
+      <section class="hero">
+        <h1><span>Pratik</span> <span>Khobragade</span></h1>
 
-        <p>
-          I write low-level tools and the plumbing around machine learning, mostly in Rust and
-          Python. Lately that means a coding agent that runs in a terminal, a GPT I built so I'd
-          stop treating transformers as magic, and a transcoder that pushes work onto the GPU.
-        </p>
+        <div class="cols">
+          <ul class="facts">
+            <li id="role">computer engineering student</li>
+            <li id="place">india</li>
+            <li><span class="age" id="age">20</span> years old</li>
+            <li>rust, python, c++</li>
+          </ul>
 
-        <p>
-          I'd rather read the paper and write the thing than pull in a dependency I can't explain.
-        </p>
-
-        <div class="meta">
-          <b id="field">computer engineering</b> / <b class="age" id="age" title="click">20</b> /
-          <b>india</b> / <b>rust · python · pytorch · cuda</b>
-        </div>
-
-        <div class="links">
-          <a href="https://github.com/Pratik-3706" target="_blank" rel="noopener">github ↗</a>
-          <a href="https://huggingface.co/Pratik-3706" target="_blank" rel="noopener">hugging face ↗</a>
-          <a href="https://in.linkedin.com/in/pratik-khobragade-278560408" target="_blank" rel="noopener">linkedin ↗</a>
-          <button id="shellBtn2">shell</button>
-        </div>
-      </section>
-
-      <section id="work">
-        <h2 class="label">Work</h2>
-
-        <div class="work">
-
-          <a href="https://github.com/Pratik-3706/Norvexum" target="_blank" rel="noopener" class="item">
-            <div class="item-top">
-              <span class="num">01</span>
-              <h3>Norvexum</h3>
-              <span class="out">↗</span>
-            </div>
-            <p>
-              A coding agent that lives in the terminal. Written in Rust, tools run in parallel
-              inside a sandboxed process, LLM providers are swappable, and the whole UI is
-              keyboard-driven Ratatui.
+          <div class="prose">
+            <p class="lede">
+              I build things mostly to find out how they work. Lately that's
+              <a href="https://github.com/Pratik-3706/Norvexum" target="_blank" rel="noopener">a coding agent</a>
+              that lives in the terminal,
+              <a href="https://github.com/Pratik-3706/Vivy" target="_blank" rel="noopener">an app</a>
+              that lets a model use my phone, and
+              <a href="https://github.com/Pratik-3706/swarm_mcp" target="_blank" rel="noopener">a way</a>
+              to get several coding agents working on one project without tripping over each other.
             </p>
-            <div class="tags">rust · ratatui · agents · sandboxing</div>
-          </a>
-
-          <a href="https://github.com/Pratik-3706/JustAnEpoch" target="_blank" rel="noopener" class="item">
-            <div class="item-top">
-              <span class="num">02</span>
-              <h3>JustAnEpoch</h3>
-              <span class="out">↗</span>
-            </div>
             <p>
-              A GPT trained from nothing but PyTorch tensors. My own BPE tokenizer, causal
-              multi-head attention, learned positional embeddings. No Hugging Face anywhere in it,
-              which was the point.
+              I'd rather read the paper and write the thing than pull in a dependency I can't explain.
             </p>
-            <div class="tags">pytorch · transformers · tokenizers</div>
-          </a>
-
-          <a href="https://github.com/Pratik-3706/Obsidian_Codec" target="_blank" rel="noopener" class="item">
-            <div class="item-top">
-              <span class="num">03</span>
-              <h3>Obsidian Codec</h3>
-              <span class="out">↗</span>
-            </div>
-            <p>
-              Batch transcoder wrapped around FFmpeg. It finds NVENC and CUDA if the machine has
-              them, watches folders for new files, and reports throughput while it works.
-            </p>
-            <div class="tags">ffmpeg · cuda · nvenc · python</div>
-          </a>
-
-          <a href="https://github.com/Pratik-3706/BadApple_nn" target="_blank" rel="noopener" class="item">
-            <div class="item-top">
-              <span class="num">04</span>
-              <h3>BadApple_nn</h3>
-              <span class="out">↗</span>
-            </div>
-            <p>
-              How much video can a tiny network memorize? This one maps a frame index straight to
-              pixels and plays Bad Apple back out of its weights. Mostly an excuse to watch a model
-              overfit on purpose.
-            </p>
-            <div class="tags">pytorch · experiment</div>
-          </a>
-
-          <a href="https://github.com/Pratik-3706/Metroika" target="_blank" rel="noopener" class="item">
-            <div class="item-top">
-              <span class="num">05</span>
-              <h3>Metroika</h3>
-              <span class="out">↗</span>
-            </div>
-            <p>
-              Where I try out service boundaries and composable pipelines before using them
-              somewhere it would hurt to get wrong.
-            </p>
-            <div class="tags">architecture · systems</div>
-          </a>
-
-          <a href="https://github.com/Pratik-3706/ignite_bot" target="_blank" rel="noopener" class="item">
-            <div class="item-top">
-              <span class="num">06</span>
-              <h3>ignite_bot</h3>
-              <span class="out">↗</span>
-            </div>
-            <p>
-              Small async bot that dispatches tasks. Built it so I'd stop rewriting the same glue
-              script every month.
-            </p>
-            <div class="tags">asyncio · automation · python</div>
-          </a>
-
-        </div>
-      </section>
-
-      <section id="focus">
-        <h2 class="label">What I work on</h2>
-
-        <div class="focus">
-          <div>
-            <h3>Systems design</h3>
-            <p>Concurrency boundaries, IPC that doesn't cost much, interfaces that survive being used.</p>
-          </div>
-          <div>
-            <h3>Reading papers</h3>
-            <p>Writing the mechanism out by hand instead of importing it. Attention, tokenizers, training loops.</p>
-          </div>
-          <div>
-            <h3>ML infrastructure</h3>
-            <p>The unglamorous half: GPU scheduling, CUDA and NVENC pipelines, serving, tool harnesses.</p>
-          </div>
-          <div>
-            <h3>Low level</h3>
-            <p>Rust and C. Memory layout, cache behaviour, process sandboxing, POSIX.</p>
           </div>
         </div>
       </section>
 
-      <section>
-        <h2 class="label">Languages</h2>
-        <div class="stack">Python · Rust · C / C++ · SQL · Bash</div>
+      <section id="projects">
+        <h2>projects</h2>
+
+        <ol class="projects">
+
+          <li>
+            <a href="https://github.com/Pratik-3706/Norvexum" target="_blank" rel="noopener">
+              <h3><span>Norvexum</span></h3>
+              <div class="body">
+                <p>
+                  A coding agent for the terminal. Tool calls run in parallel, file and shell
+                  access is locked to the project folder, and the model behind it is swappable.
+                  The interface is all keyboard, drawn with Ratatui.
+                </p>
+                <span class="stack">rust</span>
+              </div>
+              <span class="when">ongoing</span>
+            </a>
+          </li>
+
+          <li>
+            <a href="https://github.com/Pratik-3706/swarm_mcp" target="_blank" rel="noopener">
+              <h3><span>swarm-mcp</span></h3>
+              <div class="body">
+                <p>
+                  An MCP server that turns separate coding agents into a team. One manages, the
+                  rest pick work off a shared task board, and file locks keep them out of each
+                  other's edits. No daemon and no ports, they coordinate through a single file.
+                </p>
+                <span class="stack">javascript</span>
+              </div>
+              <span class="when">Nov 2026</span>
+            </a>
+          </li>
+
+          <li>
+            <a href="https://github.com/Pratik-3706/Vivy" target="_blank" rel="noopener">
+              <h3><span>Vivy</span></h3>
+              <div class="body">
+                <p>
+                  An AI that uses your Android phone for you. Type what you want on the PC and
+                  it reads the screen, taps through the steps and checks its work while you
+                  watch a live mirror. No root, no cable, no adb.
+                </p>
+                <span class="stack">rust, kotlin, react</span>
+              </div>
+              <span class="when">Oct 2026</span>
+            </a>
+          </li>
+
+          <li>
+            <a href="https://github.com/Pratik-3706/Metroika" target="_blank" rel="noopener">
+              <h3><span>Metroika</span></h3>
+              <div class="body">
+                <p>
+                  Built for Smart India Hackathon 2026. Photograph a packaged product and it
+                  checks the label against India's Legal Metrology rules: OCR in Hindi and
+                  English, barcode decoding, and a 22-clause rules engine that writes the report.
+                </p>
+                <span class="stack">python</span>
+              </div>
+              <span class="when">Sep 2026</span>
+            </a>
+          </li>
+
+          <li>
+            <a href="https://github.com/Pratik-3706/ignite_bot" target="_blank" rel="noopener">
+              <h3><span>ignite_bot</span></h3>
+              <div class="body">
+                <p>
+                  A Discord bot for the Ignite Club. It keeps track of who said what, searches
+                  the web, plans events, and idles at around 50 MB because the machine it runs
+                  on only has 512.
+                </p>
+                <span class="stack">python</span>
+              </div>
+              <span class="when">Sep 2026</span>
+            </a>
+          </li>
+
+          <li>
+            <a href="https://github.com/Pratik-3706/BadApple_nn" target="_blank" rel="noopener">
+              <h3><span>BadApple_nn</span></h3>
+              <div class="body">
+                <p>
+                  How much video can a tiny network memorize? This one learns Bad Apple frame by
+                  frame and plays it back out of its weights. Mostly an excuse to watch a model
+                  overfit on purpose.
+                </p>
+                <span class="stack">python, pytorch</span>
+              </div>
+              <span class="when">Aug 2026</span>
+            </a>
+          </li>
+
+          <li>
+            <a href="https://github.com/Pratik-3706/JustAnEpoch" target="_blank" rel="noopener">
+              <h3><span>JustAnEpoch</span></h3>
+              <div class="body">
+                <p>
+                  A GPT and its BPE tokenizer written from bare PyTorch tensors, so I'd stop
+                  treating transformers as magic. No Hugging Face anywhere in it, which was the
+                  point. The model is called StupidLM.
+                </p>
+                <span class="stack">python, pytorch</span>
+              </div>
+              <span class="when">Aug 2026</span>
+            </a>
+          </li>
+
+          <li>
+            <a href="https://github.com/Pratik-3706/Obsidian_Codec" target="_blank" rel="noopener">
+              <h3><span>Obsidian Codec</span></h3>
+              <div class="body">
+                <p>
+                  A transcoder wrapped around FFmpeg. It uses the GPU when the machine has one,
+                  watches folders for new files, and comes with a CLI and a local web UI.
+                </p>
+                <span class="stack">python, ffmpeg</span>
+              </div>
+              <span class="when">Jun 2026</span>
+            </a>
+          </li>
+
+        </ol>
+      </section>
+
+      <section class="cols">
+        <h2>otherwise</h2>
+
+        <div class="prose">
+          <p>
+            I like knowing what's under the thing I'm using: how an agent's tools get sandboxed,
+            what attention is actually computing, why a transcode is slow. That usually ends with
+            me reading the source and writing a smaller, worse version before I trust the real one.
+          </p>
+          <p>
+            Day to day it's Rust, Python and some C++. PyTorch for models, FFmpeg and CUDA when
+            video is involved, Ratatui and Tauri when something needs a face.
+          </p>
+        </div>
       </section>
 
     </main>
 
     <footer>
-      <ul>
-        <li><a href="https://github.com/Pratik-3706" target="_blank" rel="noopener">GitHub</a></li>
-        <li><a href="https://huggingface.co/Pratik-3706" target="_blank" rel="noopener">Hugging Face</a></li>
-        <li><a href="https://in.linkedin.com/in/pratik-khobragade-278560408" target="_blank" rel="noopener">LinkedIn</a></li>
-      </ul>
-      <span>no framework, no build step</span>
+      <nav class="out">
+        <a href="https://github.com/Pratik-3706" target="_blank" rel="noopener"><span>GitHub</span></a>
+        <a href="https://huggingface.co/Pratik-3706" target="_blank" rel="noopener"><span>Hugging Face</span></a>
+        <a href="https://in.linkedin.com/in/pratik-khobragade-278560408" target="_blank" rel="noopener"><span>LinkedIn</span></a>
+      </nav>
+      <div class="fine">
+        <span>Pratik Khobragade, 2026</span>
+        <button id="colophon">no framework, no build step</button>
+      </div>
     </footer>
 
   </div>
@@ -196,7 +233,7 @@
   <div class="shell-bg" id="shellBg">
     <div class="shell" role="dialog" aria-label="Shell">
       <div class="shell-bar">
-        <span>pratik@web — sh</span>
+        <span>guest@pratik: ~</span>
         <button id="shellClose">esc</button>
       </div>
       <div class="shell-scroll" id="shellScroll">
@@ -204,12 +241,12 @@
       </div>
       <div class="shell-prompt">
         <span>$</span>
-        <input type="text" id="shellInput" autocomplete="off" spellcheck="false" aria-label="Command">
+        <input type="text" id="shellInput" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Command">
       </div>
     </div>
   </div>
 
-  <div class="status" id="status"></div>
+  <div class="status" id="status" role="status"></div>
 
   <script src="main.js"></script>
 </body>
