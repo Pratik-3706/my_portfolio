@@ -964,7 +964,7 @@
     metroika: ['Metroika', 'python', 'checks product labels against the law'],
     ignite: ['ignite_bot', 'python', 'discord bot on 512 mb of ram'],
     badapple: ['BadApple_nn', 'python', 'tiny net memorizes a video'],
-    justanepoch: ['JustAnEpoch', 'python', 'gpt + bpe tokenizer from scratch'],
+    justanepoch: ['JustAnEpoch', 'python', 'gpt from scratch, plus a bpe tokenizer'],
     obsidian: ['Obsidian_Codec', 'python', 'gpu transcoder around ffmpeg'],
     portfolio: ['my_portfolio', 'html', 'you are here']
   };
