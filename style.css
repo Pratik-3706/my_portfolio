@@ -19,6 +19,9 @@
   --term-dim: #85837d;
   --term-rule: #292826;
 
+  --gutter: clamp(1.25rem, 4.5vw, 6rem);
+  --measure: clamp(36rem, 34vw, 50rem);
+
   --sans: Archivo, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
   --mono: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
 
@@ -83,11 +86,12 @@ button {
   cursor: pointer;
 }
 
+/* full width on big screens, with a gutter that grows with the window */
 .wrap {
   position: relative;
-  max-width: 88rem;
+  max-width: 150rem;
   margin: 0 auto;
-  padding: 0 2.5rem;
+  padding: 0 var(--gutter);
 }
 
 /* top bar */
@@ -95,8 +99,8 @@ button {
 .bar {
   position: absolute;
   top: 0;
-  left: 2.5rem;
-  right: 2.5rem;
+  left: var(--gutter);
+  right: var(--gutter);
   z-index: 2;
   display: flex;
   align-items: center;
@@ -203,14 +207,13 @@ kbd {
 .caption {
   right: 1.1rem;
   bottom: .9rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 .9rem;
+  line-height: 1.5;
 }
 
 .caption b {
   font-weight: 400;
   color: var(--hot);
+  margin-right: .9rem;
 }
 
 /* hero */
@@ -219,7 +222,7 @@ kbd {
 
 h1 {
   margin: 0 0 2rem;
-  font-size: clamp(2.4rem, 5.1vw, 4.75rem);
+  font-size: clamp(2.4rem, 5.4vw, 8rem);
   font-weight: 650;
   font-stretch: 125%;
   line-height: .92;
@@ -257,14 +260,14 @@ h1 span + span { animation-delay: .08s; }
 
 .prose p {
   margin: 0 0 1.1rem;
-  max-width: 36rem;
+  max-width: var(--measure);
   color: var(--muted);
 }
 
 .prose p:last-child { margin-bottom: 0; }
 
 .prose .lede {
-  font-size: clamp(1.2rem, 1.7vw, 1.4rem);
+  font-size: clamp(1.2rem, 1.45vw, 1.9rem);
   line-height: 1.42;
   letter-spacing: -.01em;
   color: var(--ink);
@@ -307,7 +310,9 @@ h2 {
   border-bottom: 1px solid var(--rule);
 }
 
-.projects a {
+.projects li { position: relative; }
+
+.projects .row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: .5rem 1rem;
@@ -327,7 +332,7 @@ h2 {
 .projects h3,
 .out a {
   margin: 0;
-  font-size: clamp(1.4rem, 2.3vw, 2rem);
+  font-size: clamp(1.4rem, 2.1vw, 2.75rem);
   font-weight: 620;
   font-stretch: 112%;
   line-height: 1.15;
@@ -347,20 +352,71 @@ h2 {
   transition: width .25s cubic-bezier(.2, .7, .2, 1), margin .25s cubic-bezier(.2, .7, .2, 1);
 }
 
-.projects a.on h3 { color: var(--hot); }
+.projects .row.on h3 { color: var(--hot); }
 
-.projects a.on h3::before {
+.projects .row.on h3::before {
   width: .5em;
   margin-right: .4em;
 }
 
 @media (hover: hover) {
-  .projects:hover a:not(:hover) { opacity: .42; }
+  .projects li { transition: opacity .2s ease; }
+  .projects:hover li:not(:hover) { opacity: .42; }
+}
+
+.badge {
+  display: inline-block;
+  margin-left: .35rem;
+  padding: .1rem .4rem;
+  vertical-align: .35em;
+  font-family: var(--mono);
+  font-size: .7rem;
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  letter-spacing: 0;
+  color: var(--hot);
+  border: 1px solid currentColor;
+  border-radius: 3px;
+}
+
+.also {
+  position: absolute;
+  right: 0;
+  bottom: 1.6rem;
+  font-family: var(--mono);
+  font-size: .78rem;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.also:hover { color: var(--hot); }
+
+/* the same links as the footer, small, under the intro */
+.elsewhere {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem 1.5rem;
+  margin-top: 1.75rem;
+  font-family: var(--mono);
+  font-size: .8125rem;
+}
+
+.elsewhere a {
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule);
+  transition: color .15s ease, border-color .15s ease;
+}
+
+.elsewhere a:hover {
+  color: var(--ink);
+  border-color: var(--hot);
 }
 
 .projects p {
   margin: 0 0 .5rem;
-  max-width: 36rem;
+  max-width: var(--measure);
   color: var(--muted);
 }
 
@@ -584,17 +640,86 @@ footer { padding: 3rem 0 2.5rem; }
 /* alternate palettes */
 
 :root[data-palette="fontaine"] {
-  --bg: #050d18;
-  --ink: #e8f5ff;
-  --muted: #8fc3e3;
-  --faint: #4f7d99;
-  --rule: #14293f;
-  --accent: #6fd3ff;
+  --bg: #070d1a;
+  --ink: #e8f0fb;
+  --muted: #8b9bb4;
+  --faint: #56688a;
+  --rule: #1b2d49;
+  --accent: #9fd0ff;
   --hot: var(--accent);
   --blend: lighter;
-  --term-bg: #071321;
-  --term-rule: #14293f;
+  --term-bg: #0a1426;
+  --term-rule: #1b2d49;
 }
+
+/* furina's two scenes, only present while the fontaine theme is on */
+.banner {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 11px;
+  animation: surface .8s ease both;
+}
+
+.banner-header { margin: 0 0 2.5rem; }
+.banner-footer { margin: 2.5rem 0 0; }
+
+@keyframes surface {
+  from { opacity: 0; transform: translateY(.6rem); }
+}
+
+/* bad apple behind everything. difference keeps the text readable on both
+   the black and the white parts of the video */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  mix-blend-mode: difference;
+  filter: blur(6px) contrast(24);
+  opacity: 0;
+  transition: opacity .5s ease;
+}
+
+.backdrop.on { opacity: 1; }
+
+/* fushi */
+html.held { overflow: hidden; }
+
+.vessel {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  pointer-events: none;
+  color: var(--hot);
+  opacity: 0;
+  transition: opacity .4s ease;
+}
+
+.vessel.on { opacity: 1; }
+
+.vessel canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* the pieces fushi pulls in. the rules and link underlines fade instead of
+   flying, since they aren't pieces of their own */
+.bh { display: inline-block; }
+
+.projects,
+.projects .row,
+.prose a { transition: border-color .6s ease, background-size .6s ease; }
+
+html.emptied .projects,
+html.emptied .projects .row { border-color: transparent; }
+
+html.emptied .prose a { background-size: 0 0; }
+
 
 :root[data-palette="onebit"] {
   --bg: #000;
@@ -615,6 +740,13 @@ footer { padding: 3rem 0 2.5rem; }
 
 /* small screens: the stage becomes a band pinned to the top */
 
+/* on very wide screens everything else grows a step too */
+@media (min-width: 110rem) {
+  body { font-size: 1.1875rem; }
+  .bar, h2, .facts, .elsewhere, .stack, .when, .also, .fine { font-size: .875rem; }
+  .count, .caption { font-size: .8125rem; }
+}
+
 @media (max-width: 60rem) {
   .wrap { padding: 0 1.25rem; }
 
@@ -625,27 +757,43 @@ footer { padding: 3rem 0 2.5rem; }
 
   .layout { display: block; }
 
+  /* main.js moves the stage into the project list, so it only pins while
+     you're scrolling through projects */
   .stage {
     top: 0;
     z-index: 5;
-    height: 36vh;
-    height: 36svh;
-    min-height: 13rem;
+    height: 40vh;
+    height: 40svh;
+    min-height: 15rem;
+    max-height: 26rem;
     margin: 0 -1.25rem;
-    padding: .6rem 1.25rem .75rem;
+    padding: .5rem 1.25rem .6rem;
     background: var(--bg);
     border-bottom: 1px solid var(--rule);
   }
 
-  .page { padding-top: 2.5rem; }
+  .count, .caption { font-size: .6875rem; }
+  .count { top: .6rem; left: .75rem; }
+  .caption { left: .75rem; right: .75rem; bottom: .6rem; }
 
-  h1 { font-size: clamp(2.4rem, 11.4vw, 6rem); }
+  .page { padding-top: 1.5rem; }
 
-  .hero { padding-bottom: 2rem; }
-  section { padding: 2.25rem 0; }
-  .projects a { padding: 1.3rem 0 1.4rem; }
+  h1 { font-size: clamp(2.6rem, 13vw, 6rem); }
+  .facts { margin-bottom: 1.75rem; }
+  .prose .lede { font-size: 1.1875rem; }
+
+  .hero { padding-bottom: 1.5rem; }
+  section { padding: 2rem 0; }
+  #projects h2 { margin-bottom: 1rem; }
+  .projects .row { padding: 1.3rem 0 1.4rem; }
+  .projects p { font-size: 1rem; }
+  .also { position: static; display: block; margin: -.6rem 0 1.3rem; }
+  .badge { vertical-align: .2em; }
+  .out { gap: .5rem 1.5rem; }
+  .banner-header { margin-bottom: 1.75rem; }
   .fine { margin-top: 2.75rem; }
   .cube { bottom: 1.25rem; left: auto; right: 1.25rem; }
+  .backdrop { filter: blur(3px) contrast(24); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -656,7 +804,7 @@ footer { padding: 3rem 0 2.5rem; }
 }
 
 @media print {
-  .stage, .bar nav, .shell-bg, .status, .cube { display: none; }
+  .stage, .bar nav, .shell-bg, .status, .cube, .backdrop, .vessel { display: none; }
   .layout { display: block; }
   .fine::after { content: "printed from the internet. bold choice."; }
 }

@@ -153,32 +153,73 @@
     }
   };
 
-  SCENES.swarm = {
-    draw(g, t) {
-      const nodes = [];
-      diamond(g, [0, 0, 0], 0.13, 1, true);
-      for (let i = 0; i < 6; i++) {
-        const lean = (i % 3 - 1) * 0.55;
-        const r = 0.68 + 0.16 * (i % 2);
-        const a = t * (0.32 + 0.07 * (i % 3)) + i * TAU / 6;
-        const p = [Math.cos(a) * r, Math.sin(a) * r * Math.sin(lean), Math.sin(a) * r * Math.cos(lean)];
-        nodes.push(p);
-        cuboid(g, p, [0.06, 0.06, 0.06], 0.9, false, a);
-        g.line([0, 0, 0], p, 0.2);
-        const u = fract(t * 0.55 + hash(i));
-        g.dot(lerp(p, [0, 0, 0], i % 2 ? u : 1 - u), 4, 1, true);
-      }
-      nodes.forEach((p, i) => g.line(p, nodes[(i + 2) % 6], 0.1));
-      for (let k = -1; k <= 1; k++) {
-        const ring = [];
-        for (let i = 0; i < 40; i++) {
-          const a = i * TAU / 40;
-          ring.push([Math.cos(a) * 0.76, Math.sin(a) * 0.76 * Math.sin(k * 0.55), Math.sin(a) * 0.76 * Math.cos(k * 0.55)]);
-        }
-        g.path(ring, true, 0.08);
-      }
+  // swarm-mcp. the manager posts tasks to the board, each worker claims one,
+  // locks its file in the source folder, and moves the card to done.
+  SCENES.swarm = (() => {
+    const M = [0, 0.62, 0];
+    const W = [[-0.55, 0.08, -0.1], [0, 0.08, -0.25], [0.55, 0.08, -0.1]];
+    const NAMES = ['codex', 'cursor', 'gemini'];
+    const B = [-0.5, -0.5, 0.2], F = [0.52, -0.5, 0.2];
+    const COL = [-0.2, 0, 0.2];
+
+    function flow(g, a, b, t, on) {
+      g.line(a, b, on ? 0.7 : 0.14, on);
+      if (on) g.dot(lerp(a, b, fract(t * 1.4)), 4, 1, true);
     }
-  };
+
+    return {
+      sway: true,
+      draw(g, t) {
+        diamond(g, M, 0.12, 1, true);
+        g.text([M[0], M[1] + 0.2, M[2]], 'manager', 11, 0.9, true);
+
+        rect(g, B, [0.31, 0, 0], [0, 0.24, 0], 0.7);
+        COL.forEach((x, i) => {
+          g.text([B[0] + x, B[1] + 0.32, B[2]], ['todo', 'doing', 'done'][i], 9, 0.7);
+          if (i) g.line([B[0] + x - 0.1, B[1] - 0.22, B[2]], [B[0] + x - 0.1, B[1] + 0.22, B[2]], 0.25);
+        });
+        g.text([B[0], B[1] - 0.34, B[2]], 'task board', 9, 0.55);
+
+        g.path([[-0.28, -0.22], [-0.28, 0.2], [-0.12, 0.2], [-0.07, 0.26], [0.28, 0.26], [0.28, -0.22]]
+          .map(([x, y]) => [F[0] + x, F[1] + y, F[2]]), true, 0.7);
+        g.text([F[0], F[1] - 0.34, F[2]], 'src/', 9, 0.55);
+
+        const cycle = t / 7;
+        let posted = false, reading = false;
+        W.forEach((w, i) => {
+          const p = fract(cycle + i / 3);
+          const col = p < 0.22 ? 0 : p < 0.3 ? (p - 0.22) / 0.08 : p < 0.72 ? 1 : p < 0.8 ? 1 + (p - 0.72) / 0.08 : 2;
+          const at = Math.floor(col), k = ease(col - at);
+          const x = COL[Math.min(at, 2)] + (at < 2 ? (COL[at + 1] - COL[at]) * k : 0);
+          const card = [B[0] + x, B[1] + 0.14 - i * 0.12, B[2] - 0.01];
+          rect(g, card, [0.07, 0, 0], [0, 0.035, 0], 1, p >= 0.22 && p < 0.8);
+
+          const file = [F[0] - 0.16 + i * 0.16, F[1] - 0.02, F[2] - 0.01];
+          const locked = p >= 0.3 && p < 0.72;
+          rect(g, file, [0.05, 0, 0], [0, 0.11, 0], locked ? 1 : 0.4, locked);
+          for (let l = 0; l < 3; l++) {
+            g.line([file[0] - 0.03, file[1] + 0.05 - l * 0.04, file[2]], [file[0] + 0.03, file[1] + 0.05 - l * 0.04, file[2]], 0.3);
+          }
+          if (locked) {
+            const lk = [file[0], file[1] + 0.2, file[2]];
+            rect(g, lk, [0.03, 0, 0], [0, 0.024, 0], 1, true);
+            g.path([[-0.018, 0.024], [-0.018, 0.05], [0.018, 0.05], [0.018, 0.024]].map(([dx, dy]) => [lk[0] + dx, lk[1] + dy, lk[2]]), false, 1, true);
+          }
+
+          cuboid(g, w, [0.07, 0.07, 0.07], 0.9, false, t * 0.6 + i);
+          g.text([w[0], w[1] + 0.17, w[2]], NAMES[i], 9, 0.75);
+          flow(g, M, w, t + i * 0.3, p < 0.3);
+          flow(g, w, [B[0] + COL[1], B[1] + 0.24, B[2]], t + i * 0.5, (p >= 0.2 && p < 0.32) || (p >= 0.7 && p < 0.82));
+          flow(g, w, [file[0], file[1] + 0.12, file[2]], t + i * 0.7, locked);
+          if (p < 0.22) posted = true;
+          if (p > 0.9 || p < 0.1) reading = true;
+        });
+        flow(g, M, [B[0] - 0.2, B[1] + 0.24, B[2]], t, posted);
+        // the manager reads the repo before it splits the work up
+        flow(g, M, [F[0], F[1] + 0.26, F[2]], t + 0.4, reading);
+      }
+    };
+  })();
 
   SCENES.vivy = {
     sway: true,
@@ -209,66 +250,76 @@
     }
   };
 
-  SCENES.metroika = {
-    sway: true,
-    draw(g, t) {
-      const W = 0.46, H = 0.68, D = 0.26, F = -D - 0.002;
-      const u = fract(t / 3.4);
-      const scan = H - Math.min(u / 0.8, 1) * 2 * H;
-      cuboid(g, [0, 0, 0], [W, H, D], 0.5);
+  // metroika. a belt of packages through one scanner. the ones that fail get
+  // an X and are pushed off the line.
+  SCENES.metroika = (() => {
+    const N = 6, SPEED = 0.16, Y = -0.32, RED = '#ff4d5e';
 
-      for (let i = 0; i < 7; i++) {
-        const y = 0.52 - i * 0.13;
-        g.line([-0.34, y, F], [-0.34 + 0.3 + 0.36 * hash(i + 3), y, F], y > scan ? 0.9 : 0.3, y > scan);
-      }
-      for (let i = 0; i < 24; i++) {
-        if (hash(i + 50) < 0.3) continue;
-        const x = -0.34 + 0.68 * i / 23;
-        g.line([x, -0.58, F], [x, -0.42, F], scan < -0.5 ? 0.9 : 0.35, scan < -0.5);
-      }
+    return {
+      sway: true,
+      draw(g) {
+        const t = g.age;
+        g.line([-1.1, Y, -0.22], [1.1, Y, -0.22], 0.45);
+        g.line([-1.1, Y, 0.22], [1.1, Y, 0.22], 0.45);
+        for (let i = 0; i < 12; i++) {
+          const x = -1.1 + fract(i / 12 + t * SPEED * 0.45) * 2.2;
+          g.line([x, Y, -0.22], [x, Y, 0.22], 0.12);
+        }
 
-      if (u < 0.8) rect(g, [0, scan, 0], [W + 0.07, 0, 0], [0, 0, D + 0.07], 1, true);
-      else {
-        const a = clamp((u - 0.8) / 0.05, 0, 1);
-        g.path([[0.62, 0, 0], [0.71, -0.11, 0], [0.9, 0.14, 0]], false, a, true);
-      }
-    }
-  };
+        g.path([[-0.04, Y, -0.32], [-0.04, 0.42, -0.32], [-0.04, 0.42, 0.32], [-0.04, Y, 0.32]], false, 0.9, true);
+        g.path([[0.04, Y, -0.32], [0.04, 0.42, -0.32], [0.04, 0.42, 0.32], [0.04, Y, 0.32]], false, 0.35, true);
+        const sweep = Y + 0.04 + (0.5 + 0.5 * Math.sin(t * 5)) * 0.62;
+        g.line([0, sweep, -0.3], [0, sweep, 0.3], 0.9, true);
+        g.text([0, 0.55, 0], 'scanner', 10, 0.75, true);
 
-  SCENES.ignite = {
-    draw(g, t) {
-      const Y = -0.7;
-      rect(g, [0, Y, 0], [0.3, 0, 0], [0, 0, 0.3], 0.55);
-      rect(g, [0, Y, 0], [0.19, 0, 0], [0, 0, 0.19], 0.3);
-      for (let i = -2; i <= 2; i++) {
-        const o = i * 0.11;
-        g.line([o, Y, 0.3], [o, Y, 0.4], 0.4);
-        g.line([o, Y, -0.3], [o, Y, -0.4], 0.4);
-        g.line([0.3, Y, o], [0.4, Y, o], 0.4);
-        g.line([-0.3, Y, o], [-0.4, Y, o], 0.4);
+        let flagged = 0, seen = 0;
+        for (let k = 0; k < N; k++) {
+          const run = t * SPEED + k / N;
+          const lap = Math.floor(run);
+          const id = k + lap * N;
+          const x = -1.05 + fract(run) * 2.1;
+          const bad = hash(id * 1.7) < 0.32;
+          const h = 0.1 + 0.08 * hash(id), wd = 0.09 + 0.04 * hash(id + 9);
+          const past = x > 0.05;
+          let z = 0, y = Y + h;
+          if (past && bad && x > 0.45) {
+            const u = clamp((x - 0.45) / 0.3, 0, 1);
+            z = ease(u) * 0.55;
+            y -= u * u * 0.35;
+          }
+          const a = Math.min(1, (1.05 - Math.abs(x)) * 5);
+          const scanned = past ? (bad ? RED : true) : false;
+          cuboid(g, [x, y, z], [wd, h, 0.1], a * (past ? 1 : 0.6), scanned);
+          for (let l = 0; l < 3; l++) {
+            g.line([x - wd * 0.7, y + h * 0.5 - l * h * 0.35, z - 0.102], [x + wd * (0.1 + 0.5 * hash(id + l)), y + h * 0.5 - l * h * 0.35, z - 0.102], a * 0.5);
+          }
+          if (past) {
+            const m = [x, y + h + 0.12, z];
+            if (bad) {
+              g.line([m[0] - 0.05, m[1] - 0.05, m[2]], [m[0] + 0.05, m[1] + 0.05, m[2]], a, RED);
+              g.line([m[0] - 0.05, m[1] + 0.05, m[2]], [m[0] + 0.05, m[1] - 0.05, m[2]], a, RED);
+            } else {
+              g.path([[m[0] - 0.05, m[1], m[2]], [m[0] - 0.015, m[1] - 0.04, m[2]], [m[0] + 0.06, m[1] + 0.05, m[2]]], false, a, true);
+            }
+          }
+          const done = lap * N + (past ? k + 1 : k);
+          seen = Math.max(seen, done);
+        }
+        for (let i = 0; i < seen; i++) if (hash(i * 1.7) < 0.32) flagged++;
+        g.hud(0.04, 0.1, 'scanned ' + seen + '   flagged ' + flagged, 11, 0.85, true, 'left');
       }
-      for (let i = 0; i < 150; i++) {
-        const u = fract(t * (0.3 + 0.3 * hash(i)) + hash(i + 100));
-        const a = hash(i + 200) * TAU + t * 0.7 + u * 2.4;
-        const r = (0.05 + 0.4 * hash(i + 300)) * Math.sin(Math.PI * Math.pow(u, 0.55)) * (1 - u * 0.5);
-        const y = Y + 0.04 + u * 1.5;
-        const x = Math.cos(a) * r, z = Math.sin(a) * r;
-        g.line([x, y, z], [x * 0.9, y + 0.07 + 0.1 * (1 - u), z * 0.9], 1 - u * 0.9, true);
-      }
-    }
-  };
+    };
+  })();
 
-  // assets/badapple.bin.gz is the whole video at 48x36, one bit per pixel, each
-  // frame XORed with the one before it and then gzipped. until it has loaded
-  // (or if it can't), this shows a single apple.
-  SCENES.badapple = (() => {
-    const COLS = 48, ROWS = 36, BYTES = COLS * ROWS / 8, FPS = 30000 / 1001, G = 1.8 / COLS;
-    let frames = null, count = 0, began = 0;
-    let state = still ? 'off' : 'idle';
+  // assets/badapple.bin.gz is the whole video at 96x72, one bit per pixel, each
+  // frame XORed with the one before it, then gzipped. the stage exhibit and the
+  // page background both play from it. it loads the first time either needs it.
+  const BAD = { COLS: 96, ROWS: 72, FPS: 30000 / 1001, frames: null, count: 0, began: 0, waiting: null };
+  BAD.BYTES = BAD.COLS * BAD.ROWS / 8;
 
-    async function load() {
-      state = 'loading';
-      try {
+  BAD.load = () => {
+    if (!BAD.waiting) {
+      BAD.waiting = (async () => {
         const res = await fetch('assets/badapple.bin.gz');
         if (!res.ok) throw new Error(res.status);
         let buf = await res.arrayBuffer();
@@ -278,15 +329,23 @@
           buf = await new Response(unzipped).arrayBuffer();
         }
         const data = new Uint8Array(buf);
-        for (let i = BYTES; i < data.length; i++) data[i] ^= data[i - BYTES];
-        frames = data;
-        count = Math.floor(data.length / BYTES);
-        began = performance.now() / 1000;
-        state = count ? 'ready' : 'off';
-      } catch (e) {
-        state = 'off';
-      }
+        for (let i = BAD.BYTES; i < data.length; i++) data[i] ^= data[i - BAD.BYTES];
+        BAD.frames = data;
+        BAD.count = Math.floor(data.length / BAD.BYTES);
+        if (!BAD.count) throw new Error('empty');
+      })();
     }
+    return BAD.waiting;
+  };
+
+  BAD.frame = () => Math.floor(Math.max(0, performance.now() / 1000 - BAD.began) * BAD.FPS);
+  BAD.lit = (f, c, r) => {
+    const i = r * BAD.COLS + c;
+    return BAD.frames[f * BAD.BYTES + (i >> 3)] & (0x80 >> (i & 7));
+  };
+
+  SCENES.badapple = (() => {
+    const COLS = BAD.COLS / 2, ROWS = BAD.ROWS / 2, G = 1.8 / COLS;
 
     function apple(g, t) {
       const phase = Math.floor(t / 3) % 2;
@@ -306,17 +365,17 @@
     return {
       sway: true,
       enter() {
-        began = performance.now() / 1000;
-        if (state === 'idle') load();
+        if (still) return;
+        if (!BAD.playing) BAD.began = performance.now() / 1000;
+        BAD.load().catch(() => {});
       },
       draw(g, t) {
-        if (state !== 'ready') { apple(g, t); return; }
-        const at = (Math.floor(Math.max(0, t - began) * FPS) % count) * BYTES;
+        if (!BAD.count || still) { apple(g, t); return; }
+        const f = BAD.frame() % BAD.count;
         const size = G * g.unit * 0.8;
         for (let r = 0; r < ROWS; r++) {
           for (let c = 0; c < COLS; c++) {
-            const i = r * COLS + c;
-            if (!(frames[at + (i >> 3)] & (0x80 >> (i & 7)))) continue;
+            if (!BAD.lit(f, c * 2, r * 2)) continue;
             g.dot([(c - COLS / 2 + 0.5) * G, (ROWS / 2 - r - 0.5) * G, 0], size, 1, true);
           }
         }
@@ -325,43 +384,130 @@
     };
   })();
 
-  SCENES.justanepoch = {
-    draw(g, t) {
-      const L = 4, N = 6;
-      const node = (l, i) => {
-        const a = i * TAU / N + l * 0.5;
-        return [Math.cos(a) * 0.55, -0.66 + l * 0.44, Math.sin(a) * 0.55];
-      };
-      const step = Math.floor(t / 0.7), u = fract(t / 0.7);
-      for (let l = 0; l < L; l++) {
-        for (let i = 0; i < N; i++) {
-          const p = node(l, i);
-          diamond(g, p, 0.035, 0.85);
-          if (l === L - 1) continue;
-          for (let j = 0; j < N; j++) {
-            const q = node(l + 1, j);
-            const on = hash(step * 7.3 + l * 31 + i * 5 + j * 13) > 0.9;
-            g.line(p, q, on ? 0.9 : 0.07, on);
-            if (on) g.dot(lerp(p, q, u), 4, 1, true);
+  // justanepoch. StupidLM as it ships: 6 decoder blocks, 6 heads, d_model 384,
+  // 256-token context, 32k vocab. each new token climbs the stack, attends to
+  // the ones before it, and lands at the end of the reply.
+  SCENES.justanepoch = (() => {
+    const PROMPT = ['hey'];
+    const REPLY = ('Imagine there are two friends who are working together: Alice and Bob. ' +
+      'They are working together each other, and there are some different ways to do this whole party.').split(' ');
+    const STEP = 0.5, LAYERS = 6, HEADS = 6, CTX = 6;
+    const lay = l => -0.6 + l * 0.22;
+    const col = i => -0.5 + i * 0.2;
+
+    return {
+      sway: true,
+      draw(g) {
+        const total = REPLY.length * STEP + 2.5;
+        const t = g.age % total;
+        const done = Math.min(REPLY.length, Math.floor(t / STEP));
+        const u = fract(t / STEP);
+        const busy = done < REPLY.length;
+
+        for (let l = 0; l < LAYERS; l++) {
+          const y = lay(l);
+          rect(g, [0, y, 0], [0.62, 0, 0], [0, 0, 0.26], 0.32);
+          const here = busy && u * (LAYERS + 1) > l + 0.5 && u * (LAYERS + 1) < l + 1.5;
+          for (let h = 0; h < HEADS; h++) {
+            const on = here && hash(done * 13 + l * 7 + h) > 0.35;
+            rect(g, [-0.5 + h * 0.2, y, -0.26], [0.05, 0, 0], [0, 0.025, 0], on ? 1 : 0.25, on);
+          }
+          if (here) {
+            const q = [col(CTX - 1), y, 0];
+            for (let i = 0; i < CTX - 1; i++) {
+              const wgt = hash(done * 3 + l * 11 + i);
+              g.line(q, [col(i), y, 0], 0.2 + wgt * 0.8, true);
+            }
           }
         }
-      }
-    }
-  };
+        g.text([-0.7, lay(LAYERS - 1), 0], 'decoder × 6', 9, 0.65, false, 'right');
+        g.text([-0.7, lay(0), -0.26], 'heads × 6', 9, 0.5, false, 'right');
 
-  SCENES.obsidian = {
-    draw(g, t) {
-      rect(g, [0, 0, 0], [0, 0.46, 0], [0, 0, 0.62], 1, true);
-      rect(g, [0, 0, 0], [0, 0.52, 0], [0, 0, 0.68], 0.4, true);
-      g.line([-1.05, 0, 0], [1.05, 0, 0], 0.12);
-      for (let i = 0; i < 10; i++) {
-        const x = fract(t * 0.14 + i / 10) * 2.1 - 1.05;
-        const k = x < 0 ? 1 : 0.45;
-        const a = Math.min(1, (1 - Math.abs(x) / 1.05) * 4);
-        rect(g, [x, 0, 0], [0, 0.28 * k, 0], [0, 0, 0.5 * k], a * (x < 0 ? 0.55 : 1), x >= 0);
+        const context = PROMPT.concat(REPLY.slice(0, done)).slice(-(CTX - 1));
+        context.forEach((word, i) => {
+          const at = [col(CTX - 1 - context.length + i), lay(0) - 0.16, 0];
+          g.dot([at[0], lay(0), 0], 3, 0.6);
+          g.text(at, word.length > 6 ? word.slice(0, 5) + '…' : word, 9, 0.6);
+        });
+
+        if (busy) {
+          const y = lay(0) - 0.1 + u * (lay(LAYERS - 1) - lay(0) + 0.3);
+          const p = [col(CTX - 1), y, 0];
+          diamond(g, p, 0.04, 1, true);
+          g.line([col(CTX - 1), lay(0) - 0.1, 0], p, 0.5, true);
+          if (u > 0.85) g.text([col(CTX - 1), lay(LAYERS - 1) + 0.24, 0], REPLY[done], 11, 1, true);
+        }
+
+        const lines = ['> ' + PROMPT.join(' ')], words = REPLY.slice(0, done);
+        let line = '';
+        words.forEach(w => {
+          if ((line + ' ' + w).length > 34) { lines.push(line); line = w; } else line = line ? line + ' ' + w : w;
+        });
+        lines.push(line + (busy && Math.floor(g.age * 3) % 2 ? '▌' : ''));
+        lines.slice(-4).forEach((s, i) => g.hud(0.05, 0.1 + i * 0.045, s, 11, i || lines.length > 4 ? 0.9 : 0.55, i > 0 || lines.length > 4, 'left'));
       }
+    };
+  })();
+
+  // obsidian codec. probe the file, split it into streams, push video through
+  // the gpu encoder, then mux it all back into one container.
+  SCENES.obsidian = (() => {
+    const IN = [-1, 0, 0], PROBE = -0.66, SPLIT = -0.44, JOIN = 0.56, OUT = [0.92, 0, 0];
+    const LANES = [
+      { y: 0.44, name: 'video', gate: 'nvenc' },
+      { y: 0, name: 'audio', gate: 'aac' },
+      { y: -0.44, name: 'subs', gate: 'srt' }
+    ];
+
+    function along(lane, u) {
+      if (u < 0.2) return lerp([PROBE, 0, 0], [SPLIT, lane.y, 0], ease(u / 0.2));
+      if (u < 0.8) return [SPLIT + (JOIN - SPLIT) * (u - 0.2) / 0.6, lane.y, 0];
+      return lerp([JOIN, lane.y, 0], [OUT[0] - 0.1, 0, 0], ease((u - 0.8) / 0.2));
     }
-  };
+
+    return {
+      sway: true,
+      draw(g, t) {
+        cuboid(g, IN, [0.1, 0.22, 0.05], 0.8);
+        for (let i = -3; i <= 3; i++) g.dot([IN[0] - 0.07, i * 0.06, -0.051], 2.5, 0.6);
+        g.text([IN[0], -0.34, 0], 'input.mkv', 9, 0.7);
+        g.line([IN[0] + 0.1, 0, 0], [PROBE, 0, 0], 0.4);
+
+        const sweep = 0.12 + 0.03 * Math.sin(t * 6);
+        circle(g, [PROBE, 0, 0], sweep, 1, true, 'yz', 24);
+        g.text([PROBE, 0.24, 0], 'ffprobe', 9, 0.75, true);
+
+        LANES.forEach((lane, li) => {
+          const gx = 0.06;
+          for (let s = 0; s < 12; s++) g.line(along(lane, s / 12), along(lane, (s + 1) / 12), 0.14);
+          cuboid(g, [gx, lane.y, 0], [0.07, 0.1, 0.1], 0.85, true);
+          g.text([gx, lane.y + 0.17, 0], lane.gate, 9, 0.8, true);
+          g.text([SPLIT - 0.02, lane.y + 0.08, 0], lane.name, 8, 0.45, false, 'right');
+
+          for (let i = 0; i < 5; i++) {
+            const u = fract(t * 0.16 + i / 5 + li * 0.07);
+            const p = along(lane, u);
+            const a = Math.min(1, u * 8, (1 - u) * 8);
+            const small = p[0] > gx;
+            if (li === 0) {
+              const k = small ? 0.5 : 1;
+              rect(g, p, [0, 0.07 * k, 0], [0, 0, 0.11 * k], a, small);
+            } else if (li === 1) {
+              const pts = [];
+              for (let j = 0; j <= 8; j++) pts.push([p[0] - 0.05 + j * 0.0125, p[1] + Math.sin(j * 1.4 + t * 8) * (small ? 0.025 : 0.05), p[2]]);
+              g.path(pts, false, a, small);
+            } else {
+              g.line([p[0] - 0.05, p[1], p[2]], [p[0] + 0.05, p[1], p[2]], a, small);
+              g.line([p[0] - 0.05, p[1] - 0.025, p[2]], [p[0] + 0.02, p[1] - 0.025, p[2]], a * 0.7, small);
+            }
+          }
+        });
+
+        cuboid(g, OUT, [0.1, 0.18, 0.05], 1, true);
+        g.text([OUT[0], -0.3, 0], 'output.mp4', 9, 0.8, true);
+      }
+    };
+  })();
 
   // re:zero. the hands only go backwards.
   SCENES.rezero = {
@@ -415,47 +561,110 @@
   // to your eternity. an orb at first, then the shape of the last thing it met.
   let met = 'pk';
 
-  SCENES.fushi = (() => {
-    const shrink = (p, k) => [p[0] * k, p[1] * k, p[2] * k];
+  const shrink = (p, k) => [p[0] * k, p[1] * k, p[2] * k];
 
-    function scaled(g, k) {
-      const s = {
-        unit: g.unit * k,
-        line: (a, b, alpha, isHot) => g.line(shrink(a, k), shrink(b, k), alpha * k, isHot),
-        dot: (p, size, alpha, isHot) => g.dot(shrink(p, k), size * k, alpha * k, isHot),
-        path(pts, closed, alpha, isHot) {
-          for (let i = 0; i < pts.length - 1; i++) s.line(pts[i], pts[i + 1], alpha, isHot);
-          if (closed) s.line(pts[pts.length - 1], pts[0], alpha, isHot);
-        }
-      };
-      return s;
-    }
-
-    function orb(g, t) {
-      const r = 0.52 + 0.02 * Math.sin(t * 2);
-      for (let i = -2; i <= 2; i++) {
-        const lat = i * 0.5;
-        circle(g, [0, Math.sin(lat) * r, 0], Math.cos(lat) * r, i ? 0.45 : 1, i === 0, 'xz', 32);
-      }
-      for (let m = 0; m < 6; m++) {
-        const a = m * Math.PI / 6, ring = [];
-        for (let i = 0; i < 32; i++) {
-          const b = i * TAU / 32;
-          ring.push([Math.cos(b) * r * Math.cos(a), Math.sin(b) * r, Math.cos(b) * r * Math.sin(a)]);
-        }
-        g.path(ring, true, 0.35);
-      }
-    }
-
-    return {
-      draw(g, t) {
-        const u = fract(t / 7);
-        const k = u < 0.4 ? 0 : u < 0.5 ? ease((u - 0.4) / 0.1) : u < 0.9 ? 1 : 1 - ease((u - 0.9) / 0.1);
-        if (k < 1) orb(scaled(g, 1 - k), t);
-        if (k > 0) SCENES[met].draw(scaled(g, k), t);
+  // the same drawing calls, scaled toward the centre and faded with it
+  function scaled(g, k) {
+    const s = {
+      unit: g.unit * k,
+      age: g.age,
+      line: (a, b, alpha, isHot) => g.line(shrink(a, k), shrink(b, k), alpha * k, isHot),
+      dot: (p, size, alpha, isHot) => g.dot(shrink(p, k), size * k, alpha * k, isHot),
+      text: (p, str, size, alpha, isHot, align) => g.text(shrink(p, k), str, size * Math.max(k, 0.4), alpha * k * k, isHot, align),
+      hud: (x, y, str, size, alpha, isHot, align) => g.hud(x, y, str, size, alpha * k * k, isHot, align),
+      depth: p => g.depth(shrink(p, k)),
+      ball: (p, r, alpha) => g.ball(shrink(p, k), r * k, alpha),
+      path(pts, closed, alpha, isHot) {
+        for (let i = 0; i < pts.length - 1; i++) s.line(pts[i], pts[i + 1], alpha, isHot);
+        if (closed) s.line(pts[pts.length - 1], pts[0], alpha, isHot);
       }
     };
-  })();
+    return s;
+  }
+
+  function orb(g, t, r) {
+    r = r || 0.52 + 0.02 * Math.sin(t * 2);
+    for (let i = -2; i <= 2; i++) {
+      const lat = i * 0.5;
+      circle(g, [0, Math.sin(lat) * r, 0], Math.cos(lat) * r, i ? 0.45 : 1, i === 0, 'xz', 32);
+    }
+    for (let m = 0; m < 6; m++) {
+      const a = m * Math.PI / 6 + t * 0.4, ring = [];
+      for (let i = 0; i < 32; i++) {
+        const b = i * TAU / 32;
+        ring.push([Math.cos(b) * r * Math.cos(a), Math.sin(b) * r, Math.cos(b) * r * Math.sin(a)]);
+      }
+      g.path(ring, true, 0.35);
+    }
+  }
+
+  SCENES.fushi = {
+    draw(g, t) {
+      const u = fract(t / 7);
+      const k = u < 0.4 ? 0 : u < 0.5 ? ease((u - 0.4) / 0.1) : u < 0.9 ? 1 : 1 - ease((u - 0.9) / 0.1);
+      if (k < 1) orb(scaled(g, 1 - k), t);
+      if (k > 0) SCENES[met].draw(scaled(g, k), t);
+    }
+  };
+
+  // the orb that swallows the page. it starts as a point and is built out of
+  // whatever falls into it, with a disk of debris spinning round it. then it
+  // tries on three shapes it has met and gives everything back, shrinking as it
+  // goes. fushi() fills in when each piece lands (eaten) and leaves (freed).
+  const VESSEL = { IN: 3, FORM: 1.1, OUT: 2.4, forms: [], eaten: [], freed: [], total: 1 };
+  VESSEL.HOLD = VESSEL.FORM * 3;
+
+  // how much of the page is inside the orb at a given age, 0 to 1
+  VESSEL.mass = age => {
+    let m = 0;
+    VESSEL.eaten.forEach(([at, w]) => { if (age >= at) m += w; });
+    VESSEL.freed.forEach(([at, w]) => { if (age >= at) m -= w; });
+    return clamp(m / VESSEL.total, 0, 1);
+  };
+
+  // how much is falling in or flying out right now, for the disk
+  VESSEL.traffic = age => {
+    const { IN, HOLD } = VESSEL;
+    if (age < IN) return clamp(Math.sin(Math.PI * age / IN) * 1.4, 0, 1);
+    const o = age - IN - HOLD;
+    return o > 0 ? clamp(Math.sin(Math.PI * o / VESSEL.OUT) * 1.4, 0, 1) : 0.3;
+  };
+
+  function accretion(g, t, size, alpha, back) {
+    if (alpha < 0.02 || size <= 0) return;
+    const c = Math.cos(0.42), s = Math.sin(0.42), mid = g.depth([0, 0, 0]);
+    for (let i = 0; i < 150; i++) {
+      const rad = size * (1.2 + 1.9 * hash(i) * hash(i + 21));
+      const ang = hash(i + 11) * TAU + t * 2.2 * Math.pow(size / rad, 1.5);
+      const at = th => [Math.cos(th) * rad, -Math.sin(th) * rad * s, Math.sin(th) * rad * c];
+      const p = at(ang);
+      if ((g.depth(p) > mid) !== back) continue;
+      g.line(p, at(ang - 0.12 - 0.2 * hash(i + 4)), alpha * (0.35 + 0.65 * hash(i + 3)), i % 4 !== 0);
+    }
+  }
+
+  SCENES.vessel = {
+    floor: false,
+    sway: true,
+    draw(g, t) {
+      const a = g.age, { IN, FORM, HOLD } = VESSEL;
+      const mass = VESSEL.mass(a);
+      const h = a - IN;
+      let k = 0, n = 0;
+      if (h > 0 && h < HOLD) {
+        n = Math.min(2, Math.floor(h / FORM));
+        const v = (h - n * FORM) / FORM;
+        k = v < 0.25 ? ease(v / 0.25) : v > 0.8 ? 1 - ease((v - 0.8) / 0.2) : 1;
+      }
+      const size = 0.02 + 0.33 * Math.pow(mass, 0.6);
+      const r = size * (1 - k) * (1 + 0.03 * Math.sin(a * 8));
+      const disk = VESSEL.traffic(a) * Math.min(1, mass * 4 + 0.15);
+      accretion(g, t, size, disk, true);
+      g.ball([0, 0, 0], r, 1);
+      accretion(g, t, size, disk, false);
+      if (k > 0) SCENES[VESSEL.forms[n]].draw(scaled(g, k * 1.05), t);
+    }
+  };
 
   SCENES.water = {
     floor: false,
@@ -476,30 +685,28 @@
     }
   };
 
-  // name, caption, colour. the first eight are the list on the page.
+  // name, caption, colour. ORDER is the list on the page.
 
-  const ORDER = ['norvexum', 'swarm', 'vivy', 'metroika', 'ignite', 'badapple', 'justanepoch', 'obsidian'];
+  const ORDER = ['norvexum', 'swarm', 'vivy', 'metroika', 'badapple', 'justanepoch', 'obsidian'];
   const META = {
     pk: ['pk', 'drag it. click it for the next one.', null],
     norvexum: ['norvexum', 'seven tool calls at once, none leaving the box', '#ff6b35'],
-    swarm: ['swarm-mcp', 'workers pick up tasks and report to the middle', '#5dff9b'],
+    swarm: ['swarm-mcp', 'manager posts, workers claim, files get locked', '#5dff9b'],
     vivy: ['vivy', 'it taps so you don\'t have to. the cube is matsumoto.', '#4de1ff'],
-    metroika: ['metroika', 'scan the label, check it against the rules', '#ffc531'],
-    ignite: ['ignite_bot', 'a whole bot on 512 mb of ram', '#ff3d5a'],
+    metroika: ['metroika', 'a whole batch through one scanner. not all of it passes.', '#ffc531'],
     badapple: ['badapple_nn', 'bad apple, at one bit per pixel', null],
-    justanepoch: ['justanepoch', 'attention, passing tokens up the stack', '#b18cff'],
-    obsidian: ['obsidian codec', 'big frames in, small frames out', '#ff7ae0'],
+    justanepoch: ['justanepoch', 'stupidlm replying. 23M params, d_model 384, ctx 256', '#b18cff'],
+    obsidian: ['obsidian codec', 'probe, split, encode on the gpu, mux it back', '#ff7ae0'],
     rezero: ['return by death', 'the clock only runs one way here', '#8ab6ff'],
     doraemon: ['anywhere door', 'click it. it goes somewhere.', '#ff8fc0'],
     fushi: ['fushi', 'an orb at first. then whatever it last met.', null],
+    vessel: ['fushi', 'it wants to remember this page', null],
     water: ['fontaine', 'all the world\'s a stage', null]
   };
 
   // the renderer: points and lines, rotated, projected, drawn. that's all of it.
 
-  const stage = (() => {
-    const box = $('stage');
-    const canvas = $('scene');
+  function makeStage(canvas, box, first) {
     const ctx = canvas.getContext('2d');
     const CAM = 3.4;
 
@@ -508,8 +715,9 @@
     let tiltX = 0, tiltY = 0, aimX = 0, aimY = 0;
     let cosY = 1, sinY = 0, cosP = 1, sinP = 0;
     let wire = '#fff', hot = '#fff';
-    let current = 'pk', since = 0, raf = 0, drag = null;
+    let current = first, since = 0, raf = 0, drag = null, active = true, type = 1, mono = 'monospace';
     const api = { onClick: null };
+    const paint = isHot => typeof isHot === 'string' ? isHot : isHot ? hot : wire;
 
     function proj(p) {
       const x = p[0] * cosY + p[2] * sinY;
@@ -527,7 +735,7 @@
         const p = proj(a), q = proj(b);
         const al = Math.min(1, alpha * fade((p[2] + q[2]) / 2) * mix);
         if (al < 0.012) return;
-        ctx.strokeStyle = isHot ? hot : wire;
+        ctx.strokeStyle = paint(isHot);
         ctx.beginPath();
         ctx.moveTo(p[0], p[1]);
         ctx.lineTo(q[0], q[1]);
@@ -548,8 +756,54 @@
         const q = proj(p);
         const s = size * CAM / (CAM + q[2]);
         ctx.globalAlpha = Math.min(1, alpha * fade(q[2]) * mix);
-        ctx.fillStyle = isHot ? hot : wire;
+        ctx.fillStyle = paint(isHot);
         ctx.fillRect(q[0] - s / 2, q[1] - s / 2, s, s);
+      },
+      depth: p => proj(p)[2],
+      // a solid lit sphere, for fushi's orb
+      ball(p, r, alpha) {
+        const q = proj(p), s = r * R * CAM / (CAM + q[2]);
+        if (s < 0.5) return;
+        const c = (hot.match(/[\d.]+/g) || [255, 255, 255]).slice(0, 3).map(Number);
+        const tone = (k, a) => 'rgba(' + c.map(v => Math.round(v * k)).join(',') + ',' + a + ')';
+        const al = Math.min(1, alpha * mix);
+        const halo = ctx.createRadialGradient(q[0], q[1], s * 0.8, q[0], q[1], s * 2.4);
+        halo.addColorStop(0, tone(1, 0.35));
+        halo.addColorStop(1, tone(1, 0));
+        ctx.globalAlpha = al;
+        ctx.fillStyle = halo;
+        ctx.beginPath();
+        ctx.arc(q[0], q[1], s * 2.4, 0, TAU);
+        ctx.fill();
+        const body = ctx.createRadialGradient(q[0] - s * 0.35, q[1] - s * 0.4, s * 0.05, q[0], q[1], s);
+        body.addColorStop(0, 'rgba(255,255,255,1)');
+        body.addColorStop(0.3, tone(1, 1));
+        body.addColorStop(1, tone(0.28, 1));
+        const op = ctx.globalCompositeOperation;
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = body;
+        ctx.beginPath();
+        ctx.arc(q[0], q[1], s, 0, TAU);
+        ctx.fill();
+        ctx.globalCompositeOperation = op;
+      },
+      text(p, str, size, alpha, isHot, align) {
+        const q = proj(p);
+        g.write(q[0], q[1], str, size, alpha * fade(q[2]), isHot, align);
+      },
+      // x and y are fractions of the canvas, for text that shouldn't move
+      hud(x, y, str, size, alpha, isHot, align) {
+        g.write(x * w, y * h, str, size, alpha, isHot, align);
+      },
+      write(x, y, str, size, alpha, isHot, align) {
+        const al = Math.min(1, alpha * mix);
+        if (al < 0.02) return;
+        ctx.globalAlpha = al;
+        ctx.fillStyle = paint(isHot);
+        ctx.font = Math.round(size * type) + 'px ' + mono;
+        ctx.textAlign = align || 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(str, x, y);
       }
     };
 
@@ -577,10 +831,13 @@
       mix = still ? 1 : ease(clamp((now - since) / 420, 0, 1));
       R = Math.min(w, h) * 0.43 * (0.84 + 0.16 * mix);
       g.unit = R;
+      g.age = (now - since) / 1000;
 
       const css = getComputedStyle(box);
       hot = css.color;
       wire = css.getPropertyValue('--ink').trim();
+      mono = css.getPropertyValue('--mono').trim() || 'monospace';
+      type = clamp(Math.min(w, h) / 480, 0.8, 1.25);
 
       ctx.globalCompositeOperation = 'source-over';
       ctx.clearRect(0, 0, w, h);
@@ -596,11 +853,11 @@
       scene.draw(g, t);
       ctx.globalAlpha = 1;
 
-      if (!still && !document.hidden) raf = requestAnimationFrame(frame);
+      if (!still && !document.hidden && active) raf = requestAnimationFrame(frame);
     }
 
     function run() {
-      if (!raf) raf = requestAnimationFrame(frame);
+      if (!raf && active) raf = requestAnimationFrame(frame);
     }
 
     function resize() {
@@ -652,23 +909,50 @@
     resize();
 
     api.run = run;
-    api.set = key => {
-      if (key === current) return;
+    api.set = (key, again) => {
+      if (key === current && !again) return;
       if (SCENES[current].leave) SCENES[current].leave();
       current = key;
       if (SCENES[key].enter) SCENES[key].enter();
       since = performance.now();
       run();
     };
+    api.pause = on => {
+      active = !on;
+      if (on) { cancelAnimationFrame(raf); raf = 0; } else run();
+    };
     return api;
-  })();
+  }
+
+  const stage = makeStage($('scene'), $('stage'), 'pk');
 
   // which exhibit is up: the row under the pointer, then anything pinned, then
   // whichever row is in the middle of the screen
 
-  const rows = Array.from(document.querySelectorAll('.projects a'));
+  const rows = Array.from(document.querySelectorAll('.projects a[data-scene]'));
   const narrow = window.matchMedia('(max-width: 60rem)');
-  let hovered = null, pinned = null, pinTimer, showing = null;
+  const stageEl = $('stage');
+
+  // on a phone the stage rides along at the top of the project list instead of
+  // sitting over the intro
+  function place() {
+    const list = document.querySelector('.projects');
+    if (narrow.matches && stageEl.nextElementSibling !== list) list.before(stageEl);
+    else if (!narrow.matches && stageEl.parentElement !== document.querySelector('.layout')) {
+      document.querySelector('.layout').prepend(stageEl);
+    }
+  }
+
+  place();
+  narrow.addEventListener('change', () => { place(); pick(); });
+
+  // the line a row has to cross to count as the one you're looking at
+  function midline() {
+    if (!narrow.matches) return window.innerHeight / 2;
+    const top = Math.max(0, stageEl.getBoundingClientRect().bottom);
+    return (top + window.innerHeight) / 2;
+  }
+  let hovered = null, pinned = null, pinTimer, pinAt = 0, showing = null;
   let palette = '';
 
   function scramble(el, text) {
@@ -692,9 +976,14 @@
   }
 
   function pick() {
+    // a pin (from clicking the stage, or an easter egg) lets go once you scroll away
+    if (pinned && Math.abs(window.scrollY - pinAt) > 80) {
+      pinned = null;
+      clearTimeout(pinTimer);
+    }
     let key = hovered || pinned;
     if (!key) {
-      const mid = window.innerHeight * (narrow.matches ? 0.66 : 0.5);
+      const mid = midline();
       const row = rows.find(r => {
         const b = r.getBoundingClientRect();
         return b.top <= mid && b.bottom > mid;
@@ -716,6 +1005,7 @@
 
   function pin(key, ms) {
     pinned = key;
+    pinAt = window.scrollY;
     hovered = null;
     clearTimeout(pinTimer);
     if (key) pinTimer = setTimeout(() => { pinned = null; pick(); }, ms || 30000);
@@ -739,7 +1029,7 @@
     const pool = rows.filter(r => r.dataset.scene !== met);
     const row = pool[(Math.random() * pool.length) | 0];
     const b = row.getBoundingClientRect();
-    const mid = window.innerHeight * (narrow.matches ? 0.66 : 0.5);
+    const mid = narrow.matches ? (stageEl.offsetHeight + window.innerHeight) / 2 : window.innerHeight / 2;
     pin(null);
     window.scrollTo({ top: window.scrollY + b.top + b.height / 2 - mid, behavior: still ? 'auto' : 'smooth' });
     status('anywhere door: ' + META[row.dataset.scene][0] + '.');
@@ -777,10 +1067,26 @@
     $('portrait').src = fontaine ? 'assets/furina_av.png' : 'assets/avatar.jpg';
     $('role').textContent = fontaine ? 'regina of all waters' : 'computer engineering student';
     $('place').textContent = fontaine ? 'fontaine' : 'india';
+    banners(fontaine);
 
     pick();
     tint();
     if (announce) status(LINES[palette] || 'back to normal.');
+  }
+
+  // furina at sea above the intro, and on the beach above the footer. they only
+  // load once the theme is on.
+  function banners(on) {
+    document.querySelectorAll('.banner').forEach(el => el.remove());
+    if (!on) return;
+    [['header', 769, 273, '.page > main'], ['footer', 846, 190, 'footer .fine']].forEach(([name, w, h, before]) => {
+      const img = new Image(w, h);
+      img.src = 'assets/' + name + '.svg';
+      img.alt = '';
+      img.className = 'banner banner-' + name;
+      img.decoding = 'async';
+      document.querySelector(before).before(img);
+    });
   }
 
   const togglePalette = name => setPalette(palette === name ? '' : name, true);
@@ -838,9 +1144,61 @@
     document.title = document.hidden ? 'still here' : TITLE;
   });
 
-  function badApple() {
-    if (palette !== 'onebit') setPalette('onebit', true);
-    pin('badapple');
+  // bad apple plays behind the whole page. the canvas sits on top with
+  // mix-blend-mode: difference, so text flips black wherever the video is white
+  // and stays readable. type it again or press esc to stop.
+  let backdrop = null;
+
+  async function badApple() {
+    if (backdrop) { stopApple('stopped.'); return; }
+    if (palette !== 'onebit') setPalette('onebit', false);
+    if (still) { status('one bit per pixel is plenty.'); return; }
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = ctx.createImageData(BAD.COLS, BAD.ROWS);
+    canvas.width = BAD.COLS;
+    canvas.height = BAD.ROWS;
+    canvas.className = 'backdrop';
+    canvas.setAttribute('aria-hidden', 'true');
+    backdrop = { canvas, raf: 0 };
+    document.body.appendChild(canvas);
+    status('bad apple. type it again or press esc to stop.', 5000);
+
+    try { await BAD.load(); } catch (e) { stopApple("couldn't load it."); return; }
+    if (!backdrop || backdrop.canvas !== canvas) return;
+    BAD.began = performance.now() / 1000;
+    BAD.playing = true;
+    canvas.classList.add('on');
+
+    const draw = () => {
+      if (!backdrop || backdrop.canvas !== canvas) return;
+      const f = BAD.frame();
+      if (f >= BAD.count) { stopApple("that's the whole thing."); return; }
+      const px = img.data;
+      for (let r = 0, i = 0; r < BAD.ROWS; r++) {
+        for (let c = 0; c < BAD.COLS; c++, i += 4) {
+          const v = BAD.lit(f, c, r) ? 255 : 0;
+          px[i] = px[i + 1] = px[i + 2] = v;
+          px[i + 3] = 255;
+        }
+      }
+      ctx.putImageData(img, 0, 0);
+      backdrop.raf = requestAnimationFrame(draw);
+    };
+    draw();
+  }
+
+  function stopApple(msg) {
+    if (!backdrop) return;
+    const { canvas, raf } = backdrop;
+    cancelAnimationFrame(raf);
+    backdrop = null;
+    BAD.playing = false;
+    canvas.classList.remove('on');
+    setTimeout(() => canvas.remove(), 600);
+    setPalette('', false);
+    if (msg) status(msg);
   }
 
   // back to the save point, which is the top of the page. it keeps count.
@@ -862,9 +1220,141 @@
     status('anywhere door. click it.');
   }
 
+  // fushi is a black hole. the page comes apart into words and pieces, each one
+  // spirals into the orb (closest first), the orb tries on a few shapes it has
+  // met, then spits every piece back to where it was.
+  let vessel = null, swallowing = false;
+
+  const PIECES = '.portrait, .clock, .bar nav button, .facts li, .elsewhere a, h2, .projects h3, ' +
+    '.stack, .when, .also, .out a, .fine > *, .banner, .stage, .bh';
+
+  function onScreen(el) {
+    const r = el.getBoundingClientRect();
+    return r.width > 0 && r.height > 0 && r.bottom > -60 && r.top < window.innerHeight + 60;
+  }
+
+  // wrap every word (or, for the name, every letter) in its own span
+  function shatter(el, letters) {
+    const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walk.nextNode()) nodes.push(walk.currentNode);
+    nodes.forEach(node => {
+      const bits = node.textContent.split(letters ? /(\s+|)/ : /(\s+)/).filter(Boolean);
+      if (bits.length < 2 && !bits[0]?.trim()) return;
+      const frag = document.createDocumentFragment();
+      bits.forEach(bit => {
+        if (!bit.trim()) { frag.appendChild(document.createTextNode(bit)); return; }
+        const span = document.createElement('span');
+        span.className = 'bh';
+        span.textContent = bit;
+        frag.appendChild(span);
+      });
+      node.replaceWith(frag);
+    });
+  }
+
+  function mend(roots) {
+    document.querySelectorAll('.bh').forEach(span => span.replaceWith(span.textContent));
+    roots.forEach(el => el.normalize());
+  }
+
+  // how a piece falls into (ox, oy). nearer pieces go first and wind up
+  // tighter, so the page pinches toward the centre like a fisheye while it
+  // spirals. on the way in each piece shrinks and is pulled long and thin along
+  // the line to the centre. life is the share of the fall time it takes.
+  function fall(el, ox, oy, far) {
+    const r = el.getBoundingClientRect();
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    const d = Math.max(1, Math.hypot(cx - ox, cy - oy)), a0 = Math.atan2(cy - oy, cx - ox);
+    const near = Math.min(1, d / far);
+    const life = 0.3 + 0.7 * Math.pow(near, 1.2);
+    const spin = (1 + 2.6 * (1 - near)) * Math.PI;
+    const frames = [];
+    for (let i = 0; i <= 18; i++) {
+      const u = i / 18;
+      const rad = d * (1 - Math.pow(u, 2.1));
+      const ang = a0 + spin * Math.pow(u, 2.3);
+      const x = ox + Math.cos(ang) * rad - cx, y = oy + Math.sin(ang) * rad - cy;
+      const close = 1 - rad / d;
+      const pinch = Math.max(0.015, Math.pow(rad / d, 0.55));
+      const long = 1 + 8 * close * close;
+      const toward = (ang * 57.3).toFixed(1), swirl = ((ang - a0) * 57.3).toFixed(1);
+      frames.push({
+        offset: u,
+        transform: 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px) rotate(' + toward + 'deg) scale(' +
+          (pinch * long).toFixed(3) + ',' + (pinch / Math.sqrt(long)).toFixed(3) + ') rotate(' + (-toward) + 'deg) rotate(' + swirl + 'deg)',
+        opacity: u > 0.9 ? (1 - u) / 0.1 : 1
+      });
+    }
+    return { el, life, weight: Math.sqrt(r.width * r.height), frames };
+  }
+
   function fushi() {
-    pin('fushi');
-    status('it has met ' + META[met][0] + '.');
+    if (swallowing) return;
+    if (still) { pin('fushi'); status('it has met ' + META[met][0] + '.'); return; }
+    swallowing = true;
+    closeShell();
+    if (backdrop) stopApple();
+
+    if (!vessel) {
+      const el = document.createElement('div');
+      el.className = 'vessel';
+      el.innerHTML = '<canvas></canvas>';
+      document.body.appendChild(el);
+      vessel = { el, stage: makeStage(el.firstChild, el, 'vessel') };
+    }
+    const shapes = ORDER.filter(k => k !== 'badapple');
+    const first = shapes.includes(met) ? met : 'norvexum';
+    VESSEL.forms = [first].concat(shapes.filter(k => k !== first).sort(() => Math.random() - 0.5)).slice(0, 3);
+
+    const { IN, HOLD, OUT } = VESSEL;
+    const roots = Array.from(document.querySelectorAll('.wrap h1, .wrap .prose p, .wrap .projects p')).filter(onScreen);
+    roots.forEach(el => shatter(el, el.tagName === 'H1'));
+    const ox = window.innerWidth / 2, oy = window.innerHeight / 2, far = Math.hypot(ox, oy);
+    const plans = Array.from(document.querySelectorAll(PIECES)).filter(onScreen).map(el => fall(el, ox, oy, far));
+    const FALL = 2.4, RISE = 2;
+    plans.forEach(p => {
+      p.delay = 0.12 + Math.random() * 0.08;
+      p.back = 0.1 + (1 - p.life) * RISE;
+    });
+    VESSEL.total = plans.reduce((sum, p) => sum + p.weight, 0) || 1;
+    VESSEL.eaten = plans.map(p => [p.delay + p.life * FALL, p.weight]);
+    VESSEL.freed = plans.map(p => [IN + HOLD + p.back, p.weight]);
+
+    root.classList.add('held', 'emptied');
+    vessel.el.classList.add('on');
+    vessel.stage.pause(false);
+    vessel.stage.set('vessel', true);
+    status('it wants to remember this page.', (IN + HOLD) * 1000);
+
+    let moving = plans.map(p => p.el.animate(p.frames, {
+      duration: p.life * FALL * 1000,
+      delay: p.delay * 1000,
+      fill: 'forwards'
+    }));
+
+    const later = (sec, fn) => setTimeout(fn, sec * 1000);
+    later(IN + HOLD, () => {
+      moving.forEach(m => m.cancel());
+      // played backwards, so the last thing in is the first thing out and
+      // everything lands home at the same moment
+      moving = plans.map(p => p.el.animate(p.frames, {
+        duration: p.life * RISE * 1000,
+        delay: p.back * 1000,
+        direction: 'reverse',
+        fill: 'backwards'
+      }));
+    });
+    later(IN + HOLD + RISE - 0.3, () => root.classList.remove('emptied'));
+    later(IN + HOLD + OUT - 0.4, () => vessel.el.classList.remove('on'));
+    later(IN + HOLD + OUT + 0.1, () => {
+      moving.forEach(m => m.cancel());
+      mend(roots);
+      root.classList.remove('held');
+      vessel.stage.pause(true);
+      swallowing = false;
+      status('it remembers this page now.');
+    });
   }
 
   let cube = null;
@@ -898,8 +1388,18 @@
   ];
 
   document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && bg.hasAttribute('open')) {
+      e.preventDefault();
+      closeShell();
+      return;
+    }
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+    if (e.key === 'Escape' && backdrop) {
+      stopApple('stopped.');
+      return;
+    }
 
     if (e.key === '`') {
       e.preventDefault();
@@ -955,6 +1455,9 @@
   $('shellBtn').addEventListener('click', openShell);
   $('shellClose').addEventListener('click', closeShell);
   bg.addEventListener('click', e => { if (e.target === bg) closeShell(); });
+  $('shellScroll').addEventListener('click', () => {
+    if (!String(window.getSelection())) input.focus();
+  });
 
   const GH = 'https://github.com/Pratik-3706/';
   const REPOS = {
@@ -962,7 +1465,6 @@
     swarm: ['swarm_mcp', 'js', 'several coding agents, one task board'],
     vivy: ['Vivy', 'rust', 'an ai that uses your android phone'],
     metroika: ['Metroika', 'python', 'checks product labels against the law'],
-    ignite: ['ignite_bot', 'python', 'discord bot on 512 mb of ram'],
     badapple: ['BadApple_nn', 'python', 'tiny net memorizes a video'],
     justanepoch: ['JustAnEpoch', 'python', 'gpt from scratch, plus a bpe tokenizer'],
     obsidian: ['Obsidian_Codec', 'python', 'gpu transcoder around ffmpeg'],
@@ -991,7 +1493,8 @@
     '.words': [
       'the page listens while you type.',
       'press esc to close this, then type one of these',
-      'anywhere on the page (no text box needed):',
+      'anywhere on the page (no text box needed).',
+      'on a phone, run them right here instead:',
       ' ',
       '  furina   vivy   badapple   subaru   doraemon   fushi'
     ],
@@ -1183,13 +1686,20 @@
 
       case 'fushi':
       case 'eternity':
+        print('hold still.', 'plain');
         fushi();
-        print('it has met ' + META[met][0] + '. esc to watch.', 'plain');
         break;
 
       case 'badapple':
+        print(backdrop ? 'stopped.' : 'playing behind the page. run it again to stop.', 'plain');
         badApple();
-        print('on the stage, one bit per pixel. esc to watch.', 'plain');
+        closeShell();
+        break;
+
+      case 'furina':
+      case 'focalors':
+        togglePalette('fontaine');
+        print(palette ? "all the world's a stage." : 'back to normal.', 'plain');
         break;
 
       case 'vivy':
