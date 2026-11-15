@@ -1457,16 +1457,10 @@
     } finally { weighing = false; }
   }
 
-  // the new tab takes focus the moment it opens, so the glitch has to finish first.
-  // the keystroke still counts as a click for about 5s, which leaves room for both.
+  // the glitch plays, then this tab goes there
   function glitchTo(to) {
     root.classList.add('glitch');
-    setTimeout(() => {
-      root.classList.remove('glitch');
-      const w = window.open(to, '_blank');
-      if (w) w.opener = null;
-      else location.href = to;
-    }, 1000);
+    setTimeout(() => { root.classList.remove('glitch'); location.href = to; }, 1000);
   }
 
   // typed words, ignored while the shell has focus
