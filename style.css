@@ -632,9 +632,31 @@ footer { padding: 3rem 0 2.5rem; }
 .cube i:nth-child(5) { transform: rotateX(90deg) translateZ(12px); }
 .cube i:nth-child(6) { transform: rotateX(-90deg) translateZ(12px); }
 
+.cube i.mark {
+  background: var(--mark) center / 15px 21px no-repeat, var(--bg);
+  image-rendering: pixelated;
+}
+
 @keyframes spin {
   from { transform: rotateX(-22deg) rotateY(0); }
   to { transform: rotateX(-22deg) rotateY(360deg); }
+}
+
+html.glitch .wrap {
+  animation: glitch 1s steps(1) both;
+}
+
+@keyframes glitch {
+  0%   { transform: none; clip-path: none; filter: none; }
+  8%   { transform: translate(-8px, 2px) skewX(10deg); clip-path: inset(12% 0 58% 0); filter: drop-shadow(4px 0 #ff2a5c) drop-shadow(-4px 0 #4de1ff); }
+  16%  { transform: translate(10px, -3px); clip-path: inset(40% 0 22% 0); }
+  26%  { transform: translate(-3px, 0) skewX(-14deg); clip-path: inset(0 0 74% 0); filter: invert(1) drop-shadow(-6px 0 #ff2a5c); }
+  38%  { transform: translate(6px, 4px); clip-path: inset(66% 0 6% 0); filter: drop-shadow(6px 0 #4de1ff); }
+  50%  { transform: translate(-12px, -2px) scaleY(1.04); clip-path: inset(28% 0 44% 0); filter: invert(1); }
+  62%  { transform: translate(4px, 0); clip-path: inset(8% 0 8% 0); filter: drop-shadow(-3px 0 #ff2a5c) drop-shadow(3px 0 #4de1ff); }
+  74%  { transform: translate(-6px, 3px) skewX(6deg); clip-path: inset(52% 0 30% 0); }
+  86%  { transform: translate(2px, -1px); clip-path: inset(0); filter: drop-shadow(2px 0 #ff2a5c); }
+  100% { transform: none; clip-path: none; filter: none; }
 }
 
 /* alternate palettes */

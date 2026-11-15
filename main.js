@@ -1357,21 +1357,114 @@
     });
   }
 
+  // matsumoto keeps a few things to himself
+
+  const GRAIN = 'HtqdMAncil+V8lJUW1CV0rZPVgYDNFA1w0yLNl1YEl4p2PxxqZNT+x7tcPJSqNNJ6mCkeFnaMhgVjeN0zRgonCPUGfN9WK3BE/JAZEo6HnQ6VIWXJwbLtZAEQ3DOrE0X9kiSEKL3xOY4IYk4GBw0+JjT87nnODckOzgwmebOgM7NZih4uKUGZmSKFQBocNCEBT7CmLNtIvwIeZa6TyjrU0sE6N4p6rJDsoLOXDBnDP+eryZ2AWmtKOCkFo1zdEoZpg83oL0RqaWGQdr69tbuPb4lzWtIbWEVH4GRRRm6ZhcruEAMendtMQXbUbtgC9SOY3JTo32aH0XRZQVQuW5AeMiMXlttFs4OCnhx9OQnHpdNr8GArjLuRv+s4f14vSavWb8mcsLI6ht7crM6ZvYRsaHgme0UMGzYKx5qHPzsCCLaPN3bJgZ9lppIxUG71YNFCPV8tyZVVcL2OvFjWtXvu3pEvqXRwcfPo833H5yJZXJWICx/Mvd+qrp8jN+cdIdkkZR/gnSV0vrwMZzseGkEmiJrYKZLpxi/GFR7Ex2edCIBK8nuISlFqJVWT6HIaFoCjCQaC/lX7CT1rOy1oO8tAGJBZs5L9gRqkZMv8ahe+vf+A38pBsH1E5SVdAlpX6GmrEE21Ge6gIoiybp4OnYmEe36abPYsS1/pnflfjTo9wbFaxlDSfNY5O1Xlhu8Rp+Q2APd9mmhAUKm+VajwMmlyB6LMSCxhnFFJ807zkvaymJKthQCVCl17u+X2qb7hIelgMKfewri6IQn3yRejfNFNtzR4NdY+j+yhYHIAK0/sIb5+ltxJcLifCZ6zd0MNPTvVpcExrLLm2YZf9V3or/aYGEppZME3T+LYawCX5T9HeA/snCvUPNhjuGbiD2Z7rYo8kGPk6cFkH49AoCTXobGx1417ONPY12uEEDlnD60tJCGwvMDsj9B+lDu4qdpUok6';
+  const MARKS = '5f6a7119ce9d748a3da915e262909f82baf77ab1';
+  const CYAN = '#4de1ff';
+
+  function drift(a) {
+    return () => {
+      a |= 0; a = a + 0x6d2b79f5 | 0;
+      let t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  function faces() {
+    const r = drift(parseInt(CYAN.slice(1), 16));
+    const bits = MARKS.match(/../g)
+      .map(h => (parseInt(h, 16) ^ Math.floor(r() * 256)).toString(2).padStart(8, '0'))
+      .join('');
+    const out = [];
+    for (let n = 0; n + 35 <= bits.length; n += 40) {
+      const c = document.createElement('canvas');
+      c.width = 5; c.height = 7;
+      const x = c.getContext('2d');
+      x.fillStyle = CYAN;
+      for (let i = 0; i < 35; i++) if (bits[n + i] === '1') x.fillRect(i % 5, i / 5 | 0, 1, 1);
+      out.push('url(' + c.toDataURL() + ')');
+    }
+    return out;
+  }
+
   let cube = null;
   function summonCube() {
     if (cube) return;
-    let pokes = 0;
+    const marks = faces();
+    const LINES = ['stop poking the cube.', 'i mean it.', 'seriously.', 'fine.'];
+    let pokes = 0, turns = 0, blink;
     cube = document.createElement('div');
     cube.className = 'cube';
     cube.innerHTML = '<i></i><i></i><i></i><i></i><i></i><i></i>';
+    const side = [...cube.children].slice(0, 4);
+    const paint = (face, n) => {
+      if (n === null) { face.classList.remove('mark'); return; }
+      face.style.setProperty('--mark', marks[n % marks.length]);
+      face.classList.add('mark');
+    };
+    const rest = () => side.forEach((f, i) => paint(f, i === 1 ? turns : null));
+    rest();
+    cube.addEventListener('animationiteration', () => {
+      turns++;
+      if (!blink) rest();
+    });
     cube.addEventListener('click', () => {
-      pokes++;
-      if (pokes === 1) status('stop poking the cube.');
-      else if (pokes === 2) status('i mean it.');
-      else { cube.remove(); cube = null; status('fine.'); }
+      if (pokes >= LINES.length) return;
+      const me = cube, n = pokes++;
+      status(LINES[n]);
+      side.forEach(f => paint(f, n));
+      clearTimeout(blink);
+      blink = setTimeout(() => {
+        blink = null;
+        if (n < LINES.length - 1) return rest();
+        me.remove();
+        if (cube === me) cube = null;
+      }, 1400);
     });
     document.body.appendChild(cube);
     status('matsumoto, reporting in.');
+  }
+
+  async function sealed(word) {
+    const raw = Uint8Array.from(atob(GRAIN), c => c.charCodeAt(0));
+    const r = drift(0x7e1a03d9), seen = new Set(), b = [];
+    while (b.length < 100) {
+      const i = Math.floor(r() * raw.length);
+      if (!seen.has(i)) { seen.add(i); b.push(raw[i]); }
+    }
+    const bytes = Uint8Array.from(b), S = crypto.subtle;
+    const base = await S.importKey('raw', new TextEncoder().encode(word), 'PBKDF2', false, ['deriveKey']);
+    const key = await S.deriveKey(
+      { name: 'PBKDF2', salt: bytes.slice(0, 16), iterations: 6e6, hash: 'SHA-256' },
+      base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+    try {
+      const out = await S.decrypt({ name: 'AES-GCM', iv: bytes.slice(16, 28) }, key, bytes.slice(28));
+      return new TextDecoder().decode(out);
+    } catch (e) { return null; }
+  }
+
+  let said = '', settle, weighing = false;
+  async function weigh() {
+    const word = said.trim();
+    said = '';
+    if (weighing || word.length < 2 || !window.crypto || !crypto.subtle) return;
+    weighing = true;
+    try {
+      const to = await sealed(word);
+      if (to) glitchTo(to);
+    } finally { weighing = false; }
+  }
+
+  function glitchTo(to) {
+    const w = window.open(to, '_blank');
+    if (w) w.opener = null;
+    root.classList.add('glitch');
+    setTimeout(() => {
+      root.classList.remove('glitch');
+      if (!w) location.href = to;
+    }, still ? 200 : 1000);
   }
 
   // typed words, ignored while the shell has focus
@@ -1409,14 +1502,18 @@
 
     if (e.key.length !== 1) return;
     buffer = (buffer + e.key.toLowerCase()).slice(-12);
+    said = (said + e.key.toLowerCase()).slice(-32);
+    clearTimeout(settle);
 
     for (const [word, fn] of WORDS) {
       if (word.test(buffer)) {
         buffer = '';
+        said = '';
         fn();
-        break;
+        return;
       }
     }
+    settle = setTimeout(weigh, 800);
   });
 
   // shell
