@@ -203,22 +203,19 @@
         <h2>open source</h2>
 
         <ol class="projects">
-
+          <!-- open-source:start -->
           <li>
-            <a href="https://github.com/sqlfluff/sqlfluff/pull/9259" target="_blank" rel="noopener" class="row">
-              <h3><span>SQLFluff</span> <em class="badge">merged</em></h3>
-              <div class="body">
-                <p>
-                  The SQL linter. One of its error paths built an exception and never raised it,
-                  so you got a confusing crash instead of the real message. I added the missing
-                  raise and a test that covers that branch.
-                </p>
-                <span class="stack">python, pull #9259</span>
-              </div>
-              <span class="when">Nov 2026</span>
-            </a>
+            <div class="row">
+              <h3><a href="https://github.com/sqlfluff/sqlfluff" target="_blank" rel="noopener">SQLFluff</a></h3>
+              <ul class="body pulls">
+                <li>
+                  <a class="pull" href="https://github.com/sqlfluff/sqlfluff/pull/9259" target="_blank" rel="noopener">Raise NotImplementedError in handle_respace__inline_without_space</a>
+                  <span class="stack"><b>merged</b> Nov 2026, #9259</span>
+                </li>
+              </ul>
+            </div>
           </li>
-
+          <!-- open-source:end -->
         </ol>
       </section>
 

@@ -24,4 +24,9 @@ easter eggs play from it. The source video is not in the repo.
 `assets/header.svg` and `assets/footer.svg` are animated scenes that only load
 in one of the hidden themes.
 
+The open source section is written by `scripts/open-source.mjs`. A GitHub Action
+runs it once a day, so merged pull requests show up by themselves. It keeps
+public, licensed repos that belong to someone else. `scripts/repo-names.json`
+holds display names. The page itself still needs no build.
+
 There is a shell behind the backtick key. Start with `help`, then `ls -a`.

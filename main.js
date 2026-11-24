@@ -1226,7 +1226,7 @@
   let vessel = null, swallowing = false;
 
   const PIECES = '.portrait, .clock, .bar nav button, .facts li, .elsewhere a, h2, .projects h3, ' +
-    '.stack, .when, .also, .out a, .fine > *, .banner, .stage, .bh';
+    '.stack, .when, .also, .pull, .out a, .fine > *, .banner, .stage, .bh';
 
   function onScreen(el) {
     const r = el.getBoundingClientRect();
